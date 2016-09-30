@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E833654C-1984-4571-9C82-6F8976B81B3C}</ProjectGuid>
+    <RootNamespace>terrain_analysis</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>-Zm120 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>include;vendors/tinyxml;vendors/CGAL;vendors/CGAL/auxiliary/gmp/include;vendors/Qt/include;vendors/Qt/include/QtCore;vendors/Qt/include/QtGui;vendors/Qt/include/ActiveQt;$(BWAPI_DIR)/include;$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <ProgramDataBaseFileName>$(OutDir)BWTAd.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>BWAPId.lib;tinyxmld.lib;CGAL-vc90-mt-gd.lib;gmp-vc90-mt-gd.lib;mpfr-vc90-mt-gd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)BWTAd.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib;$(BWAPI_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>include;vendors/tinyxml;vendors/CGAL;vendors/CGAL/auxiliary/gmp/include;vendors/Qt/include;vendors/Qt/include/QtCore;vendors/Qt/include/QtGui;vendors/Qt/include/ActiveQt;$(BWAPI_DIR)/include;$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>BWAPI.lib;tinyxml.lib;CGAL-vc90-mt.lib;gmp-vc90-mt.lib;mpfr-vc90-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)BWTA.lib</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib;$(BWAPI_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\BWTA\BaseLocation.h" />
+    <ClInclude Include="include\BWTA.h" />
+    <ClInclude Include="include\BWTA\Chokepoint.h" />
+    <ClInclude Include="include\BWTA\Polygon.h" />
+    <ClInclude Include="include\BWTA\RectangleArray.h" />
+    <ClInclude Include="include\BWTA\Region.h" />
+    <ClInclude Include="src\BaseLocationImpl.h" />
+    <ClInclude Include="src\BWTA_Result.h" />
+    <ClInclude Include="src\ChokepointImpl.h" />
+    <ClInclude Include="src\Color.h" />
+    <ClInclude Include="src\ConnectedComponent.h" />
+    <ClInclude Include="src\extract_polygons.h" />
+    <ClInclude Include="src\find_base_locations.h" />
+    <ClInclude Include="src\functions.h" />
+    <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Graph.h" />
+    <ClInclude Include="src\Heap.h" />
+    <ClInclude Include="src\MapData.h" />
+    <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\RegionImpl.h" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\targetver.h" />
+    <ClInclude Include="src\terrain_analysis.h" />
+    <ClInclude Include="src\VertexData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\BaseLocationImpl.cpp" />
+    <ClCompile Include="src\BWTA.cpp" />
+    <ClCompile Include="src\BWTA_Result.cpp" />
+    <ClCompile Include="src\calculate_connectivity.cpp" />
+    <ClCompile Include="src\ChokepointImpl.cpp" />
+    <ClCompile Include="src\ConnectedComponent.cpp" />
+    <ClCompile Include="src\extract_polygons.cpp" />
+    <ClCompile Include="src\find_base_locations.cpp" />
+    <ClCompile Include="src\get_voronoi_edges.cpp" />
+    <ClCompile Include="src\Graph.cpp" />
+    <ClCompile Include="src\load_data.cpp" />
+    <ClCompile Include="src\MapData.cpp" />
+    <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\pathfinding.cpp" />
+    <ClCompile Include="src\Polygon.cpp" />
+    <ClCompile Include="src\RegionImpl.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\terrain_analysis.cpp" />
+    <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\VertexData.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
