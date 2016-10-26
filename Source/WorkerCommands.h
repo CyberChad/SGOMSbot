@@ -6,4 +6,9 @@ class WorkerCommands :
 public:
 	WorkerCommands();
 	~WorkerCommands();
+
+	/*
+	Subset of the Unit Commands
+	+Repair, Build, Harvest, Return Minerals/Gas
+	*/
 };

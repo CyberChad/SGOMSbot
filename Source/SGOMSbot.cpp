@@ -293,7 +293,7 @@ void SGOMSbot::onFrame()
   */
   
 	
-
+//================ MAYBE DECLARATIVE MEMORY  ===================
   // Iterate through all the units that we own, create proper groupings
   for (auto &u : Broodwar->self()->getUnits())
   {	  
@@ -353,7 +353,7 @@ void SGOMSbot::onFrame()
     /*************** RESOURCE DEPOTS (Nexus/Command Centre/Hive) **************/
     /**********************************************/
 
-    
+	//================ PRODCUTION: UNIT TASK  ===================    
 
     if (u->getType().isResourceDepot() && numWorkers < 20 ) // A resource depot is a Command Center, Nexus, or Hatchery
     {

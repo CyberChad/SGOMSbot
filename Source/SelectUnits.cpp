@@ -1,10 +1,9 @@
 #include "SelectUnits.h"
 #include <BWAPI.h>
 
-SelectUnits::SelectUnits()
+bool SelectUnits::addToGroup(BWAPI::Unitset unitset)
 {
-public:
-	bool addToGroup(BWAPI::Unitset unitset)
+	return true;
 }
 
 

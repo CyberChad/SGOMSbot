@@ -12,6 +12,14 @@ namespace SGOMSbot
 		Context();
 		~Context(){};
 
+		//enum Context the player is focused on???
+		/*
+			Building, Attacking, Defending, etc...
+		*/
+	
+		/*
+		Awareness of the enemy composition (race, tech...)
+		*/
 	};
 }
 

@@ -2,6 +2,7 @@
 #include <BWAPI.h>
 #include <BWTA.h>
 #include <Windows.h>
+
 //#include <boost/python.hpp>
 
 // Remember not to use "Broodwar" in any global class constructor!

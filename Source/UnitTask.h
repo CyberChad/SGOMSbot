@@ -15,6 +15,15 @@ namespace SGOMSbot
 			//do nothing
 		};
 
+		/*Contaner for Generic UnitTask (extended by Building/Combat/Unit/Worker commands)
+
+		To be contained by Planning Unit type
+		Contains a list of Methods/Operators (Queue)
+		
+		Contains a pointer to SituationKnowledge
+
+
+		*/
 	};
 }
 

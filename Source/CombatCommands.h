@@ -6,4 +6,9 @@ class CombatCommands :
 public:
 	CombatCommands();
 	~CombatCommands();
+
+	/*
+	attack-move location
+	attack-queue unit
+	*/
 };
