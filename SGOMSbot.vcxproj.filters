@@ -3,99 +3,9 @@
   <ItemGroup>
     <ClCompile Include="Source\Dll.cpp" />
     <ClCompile Include="Source\SGOMSbot.cpp" />
-    <ClCompile Include="Source\BuildingCommands.cpp">
-      <Filter>Methods</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\CombatCommands.cpp">
-      <Filter>Methods</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Context.cpp">
-      <Filter>Context</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\EnvironmentMonitor.cpp">
-      <Filter>Monitoring</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\SelectUnits.cpp">
-      <Filter>Unit Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Goal.cpp">
-      <Filter>Planning Units</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Strategy.cpp">
-      <Filter>Context</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\UnitCommands.cpp">
-      <Filter>Methods</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\UnitTask.cpp">
-      <Filter>Unit Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\WorkerCommands.cpp">
-      <Filter>Methods</Filter>
-    </ClCompile>
-    <ClCompile Include="Chunk.cpp">
-      <Filter>ACT-R</Filter>
-    </ClCompile>
-    <ClCompile Include="Buffer.cpp">
-      <Filter>ACT-R</Filter>
-    </ClCompile>
-    <ClCompile Include="Module.cpp">
-      <Filter>ACT-R</Filter>
-    </ClCompile>
-    <ClCompile Include="PlanningUnit.cpp">
-      <Filter>Planning Units</Filter>
-    </ClCompile>
-    <ClCompile Include="Productions.cpp">
-      <Filter>ACT-R</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SGOMSbot.h" />
-    <ClInclude Include="Source\BuildingCommands.h">
-      <Filter>Methods</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\CombatCommands.h">
-      <Filter>Methods</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Context.h">
-      <Filter>Context</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\EnvironmentMonitor.h">
-      <Filter>Monitoring</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SelectUnits.h">
-      <Filter>Unit Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Goal.h">
-      <Filter>Planning Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Strategy.h">
-      <Filter>Context</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\UnitCommands.h">
-      <Filter>Methods</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\UnitTask.h">
-      <Filter>Unit Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\WorkerCommands.h">
-      <Filter>Methods</Filter>
-    </ClInclude>
-    <ClInclude Include="Chunk.h">
-      <Filter>ACT-R</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>ACT-R</Filter>
-    </ClInclude>
-    <ClInclude Include="Module.h">
-      <Filter>ACT-R</Filter>
-    </ClInclude>
-    <ClInclude Include="PlanningUnit.h">
-      <Filter>Planning Units</Filter>
-    </ClInclude>
-    <ClInclude Include="Productions.h">
-      <Filter>ACT-R</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CCMSuite\ccm\lib\actr\core.py" />

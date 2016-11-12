@@ -1,0 +1,13 @@
+﻿Build started 2016-10-28 5:09:02 PM.
+     1>Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../include /ID:\Development\BWTA/include /ID:\Development\BWAPI/include /ID:\Development\BWAPI/lib /Zi /nologo /W3 /WX- /MP /Od /Oy- /D NOMINMAX /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EXAMPLEAIMODULE_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Dll.cpp Source\SGOMSbot.cpp
+         Dll.cpp
+         SGOMSbot.cpp
+     1>Source\SGOMSbot.cpp(599): error C2065: 'IsMineralField' : undeclared identifier
+     1>Source\SGOMSbot.cpp(599): error C2065: 'IsRefinery' : undeclared identifier
+     1>Done Building Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:01.25

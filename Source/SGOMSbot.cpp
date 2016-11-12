@@ -1,8 +1,10 @@
 #include "SGOMSbot.h"
 #include <iostream>
+#include "Python.h"
 
 using namespace BWAPI;
 using namespace Filter;
+using namespace std;
 
 //bool barracks = false;
 BWAPI::Player *myself; 
@@ -91,13 +93,21 @@ Inputs: none
 Outputs: none
 Description: called when the SGOMSbot dll is loaded into game client
 */
+std::string CallPythonPlugin(const std::string& s)
+{
+    //Import the module "plugin"
+    PyObject* moduleName = PyString_FromString("plugin");
+}
 
 void SGOMSbot::onStart()
 {
 
   Broodwar->sendText("SGOMSbot initializing...");
 
-
+  Py_Initialize();
+  PyRun_SimpleString("import ccm");
+  
+  Py_Finalize();
 
   /* DEBUG INITS */
   myself = (BWAPI::Player*)Broodwar->self();
@@ -385,7 +395,7 @@ void SGOMSbot::onFrame()
 		{
 			numBarracks += 1; //increment number of barracks we are aware of
 
-            if (!u->isTraining() && (Broodwar->self()->minerals() >= UnitTypes::Terran_Marine.mineralPrice() + reservedMineralsAll) )
+            if (!u->isTraining() && !supplyBlocked && (Broodwar->self()->minerals() >= UnitTypes::Terran_Marine.mineralPrice() + reservedMineralsAll))
 			{
 				u->build(UnitTypes::Terran_Marine);
 				Broodwar << "BARRACKS: Training Marine." << std::endl;;
@@ -596,7 +606,8 @@ void SGOMSbot::onFrame()
           else if (!u->getPowerUp())  // The worker cannot harvest anything if it is carrying a powerup such as a flag (CTF only)
           {
               // Harvest from the nearest mineral patch or gas refinery
-              if (!u->gather(u->getClosestUnit(IsMineralField || IsRefinery)))
+              if ( !u->gather ( u->getClosestUnit( IsMineralField || IsRefinery ) ) )
+                  //if (!u->gather(u->getClosestUnit( isMinera) ) )
               {
                   // If the call fails, then print the last error message
                   Broodwar << Broodwar->getLastError() << std::endl;
