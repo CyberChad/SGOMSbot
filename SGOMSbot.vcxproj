@@ -45,7 +45,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../include;$(BWTA_DIR)/include;$(BWAPI_DIR)/include;$(BWAPI_DIR)/lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;$(PYTHON_DIR)/include;$(BWTA_DIR)/include;$(BWAPI_DIR)/include;$(BWAPI_DIR)/lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;_WINDOWS;_USRDLL;EXAMPLEAIMODULE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -62,7 +62,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>$(BWAPI_DIR)/lib/BWAPId.lib;$(BWTA_DIR)/lib/BWTAd.lib;$(BWTA_DIR)/lib/libboost_system-vc120-mt-gd-1_56.lib;$(BWTA_DIR)/lib/libboost_thread-vc120-mt-gd-1_56.lib;$(BWTA_DIR)/lib/libCGAL-vc120-mt-gd-4.4.lib;$(BWTA_DIR)/lib/libgmp-10.lib;$(BWTA_DIR)/lib/libmpfr-4.lib;$(BWTA_DIR)/lib/libboost_filesystem-vc120-mt-gd-1_56.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(PYTHON_DIR)\libs\python27.lib;$(BWAPI_DIR)/lib/BWAPId.lib;$(BWTA_DIR)/lib/BWTAd.lib;$(BWTA_DIR)/lib/libboost_system-vc120-mt-gd-1_56.lib;$(BWTA_DIR)/lib/libboost_thread-vc120-mt-gd-1_56.lib;$(BWTA_DIR)/lib/libCGAL-vc120-mt-gd-4.4.lib;$(BWTA_DIR)/lib/libgmp-10.lib;$(BWTA_DIR)/lib/libmpfr-4.lib;$(BWTA_DIR)/lib/libboost_filesystem-vc120-mt-gd-1_56.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,11 +91,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Agent.cpp" />
+    <ClCompile Include="Source\Awareness.cpp" />
+    <ClCompile Include="Source\Buffer.cpp" />
+    <ClCompile Include="Source\Chunk.cpp" />
+    <ClCompile Include="Source\Context.cpp" />
     <ClCompile Include="Source\Dll.cpp" />
+    <ClCompile Include="Source\EnvironmentMonitor.cpp" />
+    <ClCompile Include="Source\Goal.cpp" />
+    <ClCompile Include="Source\Module.cpp" />
+    <ClCompile Include="Source\Operator.cpp" />
+    <ClCompile Include="Source\PlanningUnit.cpp" />
+    <ClCompile Include="Source\Productions.cpp" />
     <ClCompile Include="Source\SGOMSbot.cpp" />
+    <ClCompile Include="Source\UnitTask.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Agent.h" />
+    <ClInclude Include="Source\Awareness.h" />
+    <ClInclude Include="Source\Buffer.h" />
+    <ClInclude Include="Source\Chunk.h" />
+    <ClInclude Include="Source\Common.h" />
+    <ClInclude Include="Source\Context.h" />
+    <ClInclude Include="Source\EnvironmentMonitor.h" />
+    <ClInclude Include="Source\Goal.h" />
+    <ClInclude Include="Source\Module.h" />
+    <ClInclude Include="Source\Operator.h" />
+    <ClInclude Include="Source\PlanningUnit.h" />
+    <ClInclude Include="Source\Productions.h" />
     <ClInclude Include="Source\SGOMSbot.h" />
+    <ClInclude Include="Source\UnitTask.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CCMSuite\ccm\lib\actr\core.py" />

@@ -1,29 +1,27 @@
 #pragma once
-#include <BWAPI.h>
-#include <BWTA.h>
 
 // Remember not to use "Broodwar" in any global class constructor!
 
-namespace SGOMSbot
+//namespace SGOMSbot
+
+class UnitTask
 {
-	class UnitTask
-	{
-	public:
-		UnitTask();
-		~UnitTask()
-		{
-			//do nothing
-		};
+    public:
+	    UnitTask();
+	    ~UnitTask()
+	    {
+		    //do nothing
+	    };
 
-		/*Contaner for Generic UnitTask (extended by Building/Combat/Unit/Worker commands)
+	/*Contaner for Generic UnitTask (extended by Building/Combat/Unit/Worker commands)
 
-		To be contained by Planning Unit type
-		Contains a list of Methods/Operators (Queue)
+	To be contained by Planning Unit type
+	Contains a list of Methods/Operators (Queue)
 		
-		Contains a pointer to SituationKnowledge
+	Contains a pointer to SituationKnowledge
 
 
-		*/
-	};
-}
+	*/
+};
+
 

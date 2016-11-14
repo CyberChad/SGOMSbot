@@ -1,23 +1,37 @@
+#pragma once
+
+#include "Common.h"
 #include "SGOMSbot.h"
-#include <iostream>
-#include "Python.h"
+
+#ifdef _DEBUG
+    #undef _DEBUG
+    #include <Python.h>
+#define _DEBUG
+#else
+    #include <Python.h>
+#endif
+
 
 using namespace BWAPI;
 using namespace Filter;
-using namespace std;
+using namespace SGOMS;
 
 //bool barracks = false;
 BWAPI::Player *myself; 
+
+
 
 //BWTA globals
 bool analyzed;
 bool analysis_just_finished;
 
 
+
+
 //Building Management globals
 int lastChecked = 0; // last game frame we checked if supply blocked
 
-UnitType supplyProviderType = NULL;
+BWAPI::UnitType supplyProviderType = NULL;
 int reservedMineralsAll = 0;
 int reservedMineralsSupply = 0;
 int reservedMineralsBase = 0;
@@ -87,32 +101,33 @@ int nextUnit = 0;
 
 
 
+
+std::string CallPythonPlugin(const std::string s)
+{
+    //Import the module "plugin"
+    //PyObject* moduleName = Pystring_Fromstring("plugin");
+    std::string blah = "test";
+    return blah;
+}
+
 /*
 ==== Function: onStart() ====
 Inputs: none
 Outputs: none
 Description: called when the SGOMSbot dll is loaded into game client
 */
-std::string CallPythonPlugin(const std::string& s)
-{
-    //Import the module "plugin"
-    PyObject* moduleName = PyString_FromString("plugin");
-}
 
 void SGOMSbot::onStart()
 {
 
-  Broodwar->sendText("SGOMSbot initializing...");
+  BWAPI::Broodwar->sendText("SGOMSbot initializing...");
 
-  Py_Initialize();
-  PyRun_SimpleString("import ccm");
-  
-  Py_Finalize();
+  //Py_Initialize();
+  //PyRun_SimpleString("import ccm");
+  //Py_Finalize();
 
   /* DEBUG INITS */
   myself = (BWAPI::Player*)Broodwar->self();
-
-  /* MY CUSTOM INITS */
 
   // Print the map name.
   Broodwar << "The map is [" << Broodwar->mapName() << "]" << std::endl;
@@ -122,7 +137,6 @@ void SGOMSbot::onStart()
   Broodwar << "UserInput flag is [enabled]" << std::endl;
   
   Broodwar->enableFlag(Flag::CompleteMapInformation); /*** uncomment to disable FOG OF WAR***/
-
 
   supplyProviderType = Broodwar->self()->getRace().getSupplyProvider();
 
@@ -175,7 +189,6 @@ void SGOMSbot::onStart()
 		if (u->getType().isResourceDepot())
 		{
 			commandCentre = u;
-
 		}
 		
 	}//end iterate to find command centre
@@ -203,66 +216,20 @@ void SGOMSbot::onFrame()
 {
   // Called once every game frame
 
-	
-	//BWTA draw if finished analyzing the map
-	if (analysis_just_finished)
-	{
-		Broodwar << "Finished analyzing map." << std::endl;;
-		analysis_just_finished = false;
-	}
+    /* The following code is included with the SSCAI and BWAPI ExampleAI module, and recommended for performance reasons. */
+    // Return if the game is a replay or is paused
+    if (Broodwar->isReplay() || Broodwar->isPaused() || !Broodwar->self())
+        return;
 
-	if (analyzed)
-		drawTerrainData();
+    // Prevent spamming by only running our onFrame once every number of latency frames.
+    // Latency frames are the number of frames before commands are processed.
+    if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
+        //return;
 
-	// Prevent spamming by only running our onFrame once every number of latency frames.
-	// Latency frames are the number of frames before commands are processed.
-	// if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
-	//	return;
+    updateSupplyInfo();
+    drawHUDinfo();
 
-	/* The following code is included with the SSCAI and BWAPI ExampleAI module, and recommended for performance reasons. */
-
-
-    reservedMineralsAll = reservedMineralsSupply + reservedMineralsBase + reservedMineralsUnits;
-    reservedGasAll = reservedGasBase + reservedGasUnits;
-
-    rawSupplyUsed = BWAPI::Broodwar->self()->supplyUsed();
-    //unitSupplyUsed = rawSupplyUsed;
-    rawSupplyTotal = BWAPI::Broodwar->self()->supplyTotal();
-    //unitSupplyUsed = rawSupplyTotal / 2;
-
-    lastChecked = Broodwar->getFrameCount();
-
-    Broodwar->drawTextScreen(10, 00, "Timer: %d", lastChecked);
-    Broodwar->drawTextScreen(10, 20, "Supply Blocked: %s", supplyBlocked ? "true" : "false");
-    //Broodwar->drawTextScreen(10, 30, "Next Building: %s", nextBuilding == 0 ? "Supply" : "Barracks");
-    //Broodwar->drawTextScreen(10, 40, "Next Unit: %s", nextUnit == 0 ? "SCV" : "Marine");
-    Broodwar->drawTextScreen(10, 50, "Barracks Construction: %s", makingBarracks == false? "false" : "true");
-    Broodwar->drawTextScreen(10, 70, "Supply Construction: %s", makingDepot == false ? "false" : "true");
-    //Broodwar->drawTextScreen(10, 60, "Construction: %d", numUnderConstruction);
-  
-    /* Update the HUD with debug stats*/
-    Broodwar->drawTextScreen(150, 0, "Total Minerals: %d", Broodwar->self()->minerals());
-    Broodwar->drawTextScreen(150, 10, "Reserved Minerals: %d", reservedMineralsAll);
-    Broodwar->drawTextScreen(150, 20, "Total Gas: %d", Broodwar->self()->gas());
-    Broodwar->drawTextScreen(150, 30, "Reserved Gas: %d", reservedGasAll);
-    Broodwar->drawTextScreen(150, 40, "Raw Supply Total: %d", rawSupplyTotal);
-    Broodwar->drawTextScreen(150, 50, "Raw Supply Used: %d", rawSupplyUsed);
-  
-    Broodwar->drawTextScreen(150, 70, "Barracks: %d", numBarracks);
-    Broodwar->drawTextScreen(150, 80, "Marines: %d", numMarines);
-    Broodwar->drawTextScreen(150, 90, "Workers: %d", numWorkers);
-  
-    // Display the game frame rate as text in the upper left area of the screen
-    Broodwar->drawTextScreen(300, 0, "FPS: %d", Broodwar->getFPS());
-    Broodwar->drawTextScreen(300, 10, "Average FPS: %f", Broodwar->getAverageFPS());
- 
-    /*
-    state 0 = just starting
-    state 1 = barracks 1
-    state 2 = barracks 2
-    state 3 = building squad
-    state 4 = attacking
-    */
+    GameAgent.update();
 
     numBarracks = 0; //reset until Building Groups used
     numMarines = 0; //reset until Unit Groups used
@@ -270,14 +237,6 @@ void SGOMSbot::onFrame()
     numUnderConstruction = 0;
 
 
-	// Return if the game is a replay or is paused
-  if ( Broodwar->isReplay() || Broodwar->isPaused() || !Broodwar->self() )
-    return;
-
-  // Prevent spamming by only running our onFrame once every number of latency frames.
-  // Latency frames are the number of frames before commands are processed.
-//  if ( Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0 )
-  //  return;
 
    
     if ( rawSupplyUsed >= rawSupplyTotal -6 ) //we want a buffer of 3 units
@@ -353,7 +312,7 @@ void SGOMSbot::onFrame()
     /*************** ATTACK UNIT TALLY *****************/
     /**********************************************/
 
-    if ( u->getType() == UnitTypes::Terran_Marine && !u->isBeingConstructed() )
+    if (u->getType() == BWAPI::UnitTypes::Terran_Marine && !u->isBeingConstructed())
     {
         numMarines++; //increase the number of marines we are aware of
 		marinesUnion.insert(u);        
@@ -367,7 +326,7 @@ void SGOMSbot::onFrame()
 
     if (u->getType().isResourceDepot() && numWorkers < 20 ) // A resource depot is a Command Center, Nexus, or Hatchery
     {
-        int scvCost = UnitTypes::Terran_SCV.mineralPrice();
+        int scvCost = BWAPI::UnitTypes::Terran_SCV.mineralPrice();
         // Order the depot to construct more workers! But only when it is idle.
         if (!supplyBlocked && u->isIdle() && Broodwar->self()->minerals() >= scvCost + reservedMineralsAll )
         {
@@ -389,15 +348,15 @@ void SGOMSbot::onFrame()
 	/*************** BARRACKS *****************/
 	/**********************************************/
 	
-	if (u->getType() == UnitTypes::Terran_Barracks)
+	if (u->getType() == BWAPI::UnitTypes::Terran_Barracks)
 	{
 		if (!u->isBeingConstructed())
 		{
 			numBarracks += 1; //increment number of barracks we are aware of
 
-            if (!u->isTraining() && !supplyBlocked && (Broodwar->self()->minerals() >= UnitTypes::Terran_Marine.mineralPrice() + reservedMineralsAll))
+            if (!u->isTraining() && !supplyBlocked && (Broodwar->self()->minerals() >= BWAPI::UnitTypes::Terran_Marine.mineralPrice() + reservedMineralsAll))
 			{
-				u->build(UnitTypes::Terran_Marine);
+				u->build(BWAPI::UnitTypes::Terran_Marine);
 				Broodwar << "BARRACKS: Training Marine." << std::endl;;
 			}
 			
@@ -414,14 +373,14 @@ void SGOMSbot::onFrame()
   /**********************************************/
 
   /*======================= Build a Supply Depot=================*/
-  if (supplyBlocked && !makingDepot && supplyMaker_p && !supplyMaker_p->isConstructing() && Broodwar->self()->minerals() >= ( UnitTypes::Terran_Supply_Depot.mineralPrice() + reservedMineralsAll ) )
+  if (supplyBlocked && !makingDepot && supplyMaker_p && !supplyMaker_p->isConstructing() && Broodwar->self()->minerals() >= ( BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice() + reservedMineralsAll ) )
   {
 	  Broodwar << "SUPPLY: Supply blocked, need a depo." << std::endl;
 	  
 	  // Retrieve a unit that is capable of constructing the supply needed
 	  //Unit supplyBuilder = u->getClosestUnit(GetType == supplyProviderType.whatBuilds().first && (IsIdle || IsGatheringMinerals) && IsOwned);
-	  //TilePosition buildPosition = Broodwar->getBuildLocation(BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
-	  //constructionWorker_p->build(UnitTypes::Terran_Barracks, buildPosition);
+	  //TilePosition buildPosition = Broodwar->getBuildLocation(BWAPI::BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
+	  //constructionWorker_p->build(BWAPI::UnitTypes::Terran_Barracks, buildPosition);
 
 	  UnitType supplyProviderType = supplyMaker_p->getType().getRace().getSupplyProvider();
 
@@ -438,7 +397,7 @@ void SGOMSbot::onFrame()
 			  supplyMaker_p->build(supplyProviderType, targetBuildLocation);
 
 			  //reserve minerals for the depot, set state flags
-			  reservedMineralsSupply += UnitTypes::Terran_Supply_Depot.mineralPrice();
+			  reservedMineralsSupply += BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice();
 
 			  //isConstruction = true;
 			  makingDepot = true;
@@ -459,18 +418,18 @@ void SGOMSbot::onFrame()
   /*************** BARRACKS CONSTRUCTION ************/
   /**********************************************/
 
-  int barracksCost = UnitTypes::Terran_Barracks.mineralPrice();
+  int barracksCost = BWAPI::UnitTypes::Terran_Barracks.mineralPrice();
 
   if (!supplyBlocked && !makingBarracks  && constructionWorker_p && !constructionWorker_p->isConstructing() && Broodwar->self()->minerals() >= (barracksCost + reservedMineralsAll))
   {
 	  
 
 	  //find a location and construct it
-	  TilePosition targetBuildLocation = Broodwar->getBuildLocation(BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
+      BWAPI::TilePosition targetBuildLocation = Broodwar->getBuildLocation(BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
 
-	  UnitType AttackProviderType = BWAPI::UnitTypes::Terran_Barracks;
+      BWAPI::UnitType AttackProviderType = BWAPI::UnitTypes::Terran_Barracks;
 	  // Register an event that draws the target build location
-	  Broodwar->registerEvent([targetBuildLocation, AttackProviderType](Game*){Broodwar->drawBoxMap(Position(targetBuildLocation), Position(targetBuildLocation + AttackProviderType.tileSize()), Colors::Red); }, nullptr, AttackProviderType.buildTime() + 100);
+      Broodwar->registerEvent([targetBuildLocation, AttackProviderType](BWAPI::Game*){Broodwar->drawBoxMap(BWAPI::Position(targetBuildLocation), BWAPI::Position(targetBuildLocation + AttackProviderType.tileSize()), BWAPI::Colors::Red); }, nullptr, AttackProviderType.buildTime() + 100);
 	  constructionWorker_p->build(AttackProviderType, targetBuildLocation);
 	  
 	  Broodwar << "BUILDING: Tasking construction: Barracks" << std::endl;
@@ -494,9 +453,9 @@ void SGOMSbot::onFrame()
 
 		for (auto &u : Broodwar->self()->getUnits())
 		{
-			if (u->getType() == UnitTypes::Terran_Marine && !u->isBeingConstructed() && !u->isAttacking() && !u->isMoving())
+            if (u->getType() == BWAPI::UnitTypes::Terran_Marine && !u->isBeingConstructed() && !u->isAttacking() && !u->isMoving())
 			{
-				Unit closestEnemy = NULL;
+                BWAPI::Unit closestEnemy = NULL;
 
 				for (auto &e : Broodwar->enemy()->getUnits())
 				{
@@ -792,4 +751,51 @@ void SGOMSbot::drawTerrainData()
 			Broodwar->drawLineMap(point1, point2, Colors::Red);
 		}
 	}
+}
+
+void SGOMSbot::updateSupplyInfo()
+{
+    reservedMineralsAll = reservedMineralsSupply + reservedMineralsBase + reservedMineralsUnits;
+    reservedGasAll = reservedGasBase + reservedGasUnits;
+    rawSupplyUsed = BWAPI::Broodwar->self()->supplyUsed();
+    rawSupplyTotal = BWAPI::Broodwar->self()->supplyTotal();
+}
+
+void SGOMSbot::drawHUDinfo()
+{
+    lastChecked = Broodwar->getFrameCount();
+
+    Broodwar->drawTextScreen(10, 00, "Timer: %d", lastChecked);
+    Broodwar->drawTextScreen(10, 20, "Supply Blocked: %s", supplyBlocked ? "true" : "false");
+    //Broodwar->drawTextScreen(10, 30, "Next Building: %s", nextBuilding == 0 ? "Supply" : "Barracks");
+    //Broodwar->drawTextScreen(10, 40, "Next Unit: %s", nextUnit == 0 ? "SCV" : "Marine");
+    Broodwar->drawTextScreen(10, 50, "Barracks Construction: %s", makingBarracks == false ? "false" : "true");
+    Broodwar->drawTextScreen(10, 70, "Supply Construction: %s", makingDepot == false ? "false" : "true");
+    //Broodwar->drawTextScreen(10, 60, "Construction: %d", numUnderConstruction);
+
+    /* Update the HUD with debug stats*/
+    Broodwar->drawTextScreen(150, 0, "Total Minerals: %d", Broodwar->self()->minerals());
+    Broodwar->drawTextScreen(150, 10, "Reserved Minerals: %d", reservedMineralsAll);
+    Broodwar->drawTextScreen(150, 20, "Total Gas: %d", Broodwar->self()->gas());
+    Broodwar->drawTextScreen(150, 30, "Reserved Gas: %d", reservedGasAll);
+    Broodwar->drawTextScreen(150, 40, "Raw Supply Total: %d", rawSupplyTotal);
+    Broodwar->drawTextScreen(150, 50, "Raw Supply Used: %d", rawSupplyUsed);
+
+    Broodwar->drawTextScreen(150, 70, "Barracks: %d", numBarracks);
+    Broodwar->drawTextScreen(150, 80, "Marines: %d", numMarines);
+    Broodwar->drawTextScreen(150, 90, "Workers: %d", numWorkers);
+
+    // Display the game frame rate as text in the upper left area of the screen
+    Broodwar->drawTextScreen(300, 0, "FPS: %d", Broodwar->getFPS());
+    Broodwar->drawTextScreen(300, 10, "Average FPS: %f", Broodwar->getAverageFPS());
+
+    //BWTA draw if finished analyzing the map
+    if (analysis_just_finished)
+    {
+        Broodwar << "Finished analyzing map." << std::endl;;
+        analysis_just_finished = false;
+    }
+
+    if (analyzed)
+        drawTerrainData();
 }

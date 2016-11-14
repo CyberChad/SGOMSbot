@@ -2,10 +2,15 @@
 
 #include "Context.h"
 #include <iostream>
-
-using namespace SGOMSbot;
+#include "Goal.h"
 
 Context::Context()
 {
+    initialize();
 	//do nothing for now
+}
+
+void Context::initialize()
+{
+    //do nothing for now
 }

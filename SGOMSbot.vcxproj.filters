@@ -3,31 +3,106 @@
   <ItemGroup>
     <ClCompile Include="Source\Dll.cpp" />
     <ClCompile Include="Source\SGOMSbot.cpp" />
+    <ClCompile Include="Source\UnitTask.cpp">
+      <Filter>Micro Stuff\Unit Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PlanningUnit.cpp">
+      <Filter>Micro Stuff\Planning Units</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Operator.cpp">
+      <Filter>Micro Stuff\Operators</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\EnvironmentMonitor.cpp">
+      <Filter>External Monitoring</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Buffer.cpp">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chunk.cpp">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Module.cpp">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Productions.cpp">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Context.cpp">
+      <Filter>Macro Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Goal.cpp">
+      <Filter>Macro Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Agent.cpp" />
+    <ClCompile Include="Source\Awareness.cpp">
+      <Filter>External Monitoring</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SGOMSbot.h" />
+    <ClInclude Include="Source\UnitTask.h">
+      <Filter>Micro Stuff\Unit Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PlanningUnit.h">
+      <Filter>Micro Stuff\Planning Units</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Operator.h">
+      <Filter>Micro Stuff\Operators</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnvironmentMonitor.h">
+      <Filter>External Monitoring</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Buffer.h">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Chunk.h">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Module.h">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Productions.h">
+      <Filter>Micro Stuff\ACT-R</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Context.h">
+      <Filter>Macro Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Goal.h">
+      <Filter>Macro Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Common.h" />
+    <ClInclude Include="Source\Agent.h" />
+    <ClInclude Include="Source\Awareness.h">
+      <Filter>External Monitoring</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CCMSuite\ccm\lib\actr\core.py" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="ACT-R">
-      <UniqueIdentifier>{5b64b7ea-e541-4675-9286-767df0b5d145}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Context">
-      <UniqueIdentifier>{95552c75-06dd-44ac-b71a-7daf40d0e1d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Planning Units">
-      <UniqueIdentifier>{f6dcd8a2-2ed9-4984-b4e9-0257c3f3994c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Unit Tasks">
-      <UniqueIdentifier>{b59b1e77-25fd-45ee-99fb-6141ebf46644}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Methods">
       <UniqueIdentifier>{dbe3c69b-1d43-405b-a163-32bd25ab2dd2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Monitoring">
+    <Filter Include="Macro Stuff">
+      <UniqueIdentifier>{823cee2f-144d-41d1-b310-605b4b03ea09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Monitoring">
       <UniqueIdentifier>{ea796bb4-8647-4975-be3d-270d30a164e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Micro Stuff">
+      <UniqueIdentifier>{cd9e125d-eecc-4370-8b71-de4c26b03bf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Micro Stuff\ACT-R">
+      <UniqueIdentifier>{5b64b7ea-e541-4675-9286-767df0b5d145}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Micro Stuff\Operators">
+      <UniqueIdentifier>{7d73a95a-7837-46e8-873b-73f55fafcb27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Micro Stuff\Planning Units">
+      <UniqueIdentifier>{f6dcd8a2-2ed9-4984-b4e9-0257c3f3994c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Micro Stuff\Unit Tasks">
+      <UniqueIdentifier>{b59b1e77-25fd-45ee-99fb-6141ebf46644}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

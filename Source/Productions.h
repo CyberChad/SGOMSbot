@@ -1,4 +1,14 @@
 #pragma once
+
+#include <utility>
+#include "Common.h"
+#include "Chunk.h"
+
+
+using namespace std;
+
+//typedef std::pair <int, int> ProductionPair;
+
 class Productions
 {
 public:

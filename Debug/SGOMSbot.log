@@ -1,13 +1,40 @@
-﻿Build started 2016-10-28 5:09:02 PM.
+﻿Build started 11/12/2016 9:57:52 AM.
      1>Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../include /ID:\Development\BWTA/include /ID:\Development\BWAPI/include /ID:\Development\BWAPI/lib /Zi /nologo /W3 /WX- /MP /Od /Oy- /D NOMINMAX /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EXAMPLEAIMODULE_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Dll.cpp Source\SGOMSbot.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../include /IC:\Python27/include /ID:\Development\BWTA/include /ID:\Development\BWAPI/include /ID:\Development\BWAPI/lib /Zi /nologo /W3 /WX- /MP /Od /Oy- /D NOMINMAX /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EXAMPLEAIMODULE_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Dll.cpp Source\SGOMSbot.cpp
          Dll.cpp
          SGOMSbot.cpp
-     1>Source\SGOMSbot.cpp(599): error C2065: 'IsMineralField' : undeclared identifier
-     1>Source\SGOMSbot.cpp(599): error C2065: 'IsRefinery' : undeclared identifier
-     1>Done Building Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" (Build target(s)) -- FAILED.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Development\SGOMSbot\Debug\SGOMSbot.dll" /INCREMENTAL:NO /NOLOGO C:\Python27\libs\python27.lib D:\Development\BWAPI/lib/BWAPId.lib D:\Development\BWTA/lib/BWTAd.lib "D:\Development\BWTA/lib/libboost_system-vc120-mt-gd-1_56.lib" "D:\Development\BWTA/lib/libboost_thread-vc120-mt-gd-1_56.lib" "D:\Development\BWTA/lib/libCGAL-vc120-mt-gd-4.4.lib" "D:\Development\BWTA/lib/libgmp-10.lib" "D:\Development\BWTA/lib/libmpfr-4.lib" "D:\Development\BWTA/lib/libboost_filesystem-vc120-mt-gd-1_56.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Development\SGOMSbot\Debug\SGOMSbot.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Debug\SGOMSbot.lib" /MACHINE:X86 /SAFESEH /DLL Debug\Dll.obj
+         Debug\Operator.obj
+         Debug\PlanningUnit.obj
+         Debug\SGOMSbot.obj
+         Debug\UnitTask.obj
+            Creating library Debug\SGOMSbot.lib and object Debug\SGOMSbot.exp
+     1>BWTAd.lib(BaseLocationImpl.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(BaseLocationImpl.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(BWTA.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(BWTA.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(BWTA_Result.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(BWTA_Result.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(calculate_connectivity.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(calculate_connectivity.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(ChokepointImpl.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(ChokepointImpl.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(ConnectedComponent.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(ConnectedComponent.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(extract_polygons.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(extract_polygons.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(find_base_locations.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(find_base_locations.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(get_voronoi_edges.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(get_voronoi_edges.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(Graph.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(Graph.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(load_data.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(load_data.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(MapData.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(MapData.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(Node.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(Node.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(Polygon.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(Polygon.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(RegionImpl.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(RegionImpl.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(terrain_analysis.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(terrain_analysis.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(util.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(util.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(VertexData.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(VertexData.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(stdafx.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(stdafx.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(pathfinding.obj) : warning LNK4099: PDB 'bwtad.pdb' was not found with 'BWTAd.lib(pathfinding.obj)' or at 'D:\Development\SGOMSbot\Debug\bwtad.pdb'; linking object as if no debug info
+     1>BWTAd.lib(all_files.obj) : warning LNK4204: 'D:\Development\SGOMSbot\Debug\vc120.pdb' is missing debugging information for referencing module; linking object as if no debug info
+         SGOMSbot.vcxproj -> D:\Development\SGOMSbot\Debug\SGOMSbot.dll
+     1>Done Building Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" (Build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:01.25
+Time Elapsed 00:00:02.58
