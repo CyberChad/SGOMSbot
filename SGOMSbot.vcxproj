@@ -91,35 +91,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Agent.cpp" />
     <ClCompile Include="Source\Awareness.cpp" />
     <ClCompile Include="Source\Buffer.cpp" />
     <ClCompile Include="Source\Chunk.cpp" />
     <ClCompile Include="Source\Context.cpp" />
     <ClCompile Include="Source\Dll.cpp" />
-    <ClCompile Include="Source\EnvironmentMonitor.cpp" />
     <ClCompile Include="Source\Goal.cpp" />
     <ClCompile Include="Source\Module.cpp" />
     <ClCompile Include="Source\Operator.cpp" />
     <ClCompile Include="Source\PlanningUnit.cpp" />
     <ClCompile Include="Source\Productions.cpp" />
     <ClCompile Include="Source\SGOMSbot.cpp" />
+    <ClCompile Include="Source\Strategy.cpp" />
     <ClCompile Include="Source\UnitTask.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Agent.h" />
     <ClInclude Include="Source\Awareness.h" />
     <ClInclude Include="Source\Buffer.h" />
     <ClInclude Include="Source\Chunk.h" />
     <ClInclude Include="Source\Common.h" />
     <ClInclude Include="Source\Context.h" />
-    <ClInclude Include="Source\EnvironmentMonitor.h" />
     <ClInclude Include="Source\Goal.h" />
     <ClInclude Include="Source\Module.h" />
     <ClInclude Include="Source\Operator.h" />
     <ClInclude Include="Source\PlanningUnit.h" />
     <ClInclude Include="Source\Productions.h" />
     <ClInclude Include="Source\SGOMSbot.h" />
+    <ClInclude Include="Source\Strategy.h" />
     <ClInclude Include="Source\UnitTask.h" />
   </ItemGroup>
   <ItemGroup>

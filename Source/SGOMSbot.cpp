@@ -16,91 +16,9 @@ using namespace BWAPI;
 using namespace Filter;
 using namespace SGOMS;
 
-//bool barracks = false;
-BWAPI::Player *myself; 
-
-
-
 //BWTA globals
 bool analyzed;
 bool analysis_just_finished;
-
-
-
-
-//Building Management globals
-int lastChecked = 0; // last game frame we checked if supply blocked
-
-BWAPI::UnitType supplyProviderType = NULL;
-int reservedMineralsAll = 0;
-int reservedMineralsSupply = 0;
-int reservedMineralsBase = 0;
-int reservedMineralsUnits = 0;
-
-int reservedGasAll = 0;
-int reservedGasBase = 0;
-int reservedGasUnits = 0;
-
-int rawSupplyUsed = 0;
-int rawSupplyTotal = 0;
-int unitSupplyUsed = 0;
-int unitSupplyTotal = 0;
-
-BWAPI::Unit commandCentre;
-
-BWAPI::Unitset unitSetHarvestMinerals;
-BWAPI::Unitset unitSetHarvestGas;
-BWAPI::Unitset unitSetConstruction;
-
-int numBarracks = 0;
-int nextBuilding = 0;
-int numUnderConstruction = 0;
-/*
-0 = supply
-1 = barracks
-*/
-
-
-//State transition globals
-bool makingDepot = false;
-bool makingBarracks = false;
-bool isConstruction = false;
-bool supplyBlocked = false;
-/*
-state 0 = just starting
-state 1 = barracks 1
-state 2 = barracks 2
-state 3 = building squad
-state 4 = attacking
-*/
-
-//Unit Management globals
-BWAPI::Unitset infantry;
-BWAPI::Unitset workersUnion;
-BWAPI::Unitset workersMinerals;
-BWAPI::Unitset workersGas;
-BWAPI::Unitset availableWorkers;
-
-BWAPI::Unit constructionWorker_p = nullptr;
-BWAPI::Unit supplyMaker_p = nullptr;
-
-BWAPI::Unitset marinesUnion;
-
-//Combat globals
-bool attackingBase = false;
-
-
-int numWorkers = 0;
-int numMarines = 0;
-int nextUnit = 0;
-
-/*
-0 = worker
-1 = marine
-*/
-
-
-
 
 std::string CallPythonPlugin(const std::string s)
 {
@@ -122,12 +40,19 @@ void SGOMSbot::onStart()
 
   BWAPI::Broodwar->sendText("SGOMSbot initializing...");
 
+  myself = (BWAPI::Player*)Broodwar->self(); //hook into game player
+  
+  awarenessModule.initialize(); //internal game state and understanding
+  contextModule.initialize(); //internal game state and understanding
+  strategyModule.initialize("default");
+
+  
+  
   //Py_Initialize();
   //PyRun_SimpleString("import ccm");
   //Py_Finalize();
 
-  /* DEBUG INITS */
-  myself = (BWAPI::Player*)Broodwar->self();
+  
 
   // Print the map name.
   Broodwar << "The map is [" << Broodwar->mapName() << "]" << std::endl;
@@ -138,7 +63,7 @@ void SGOMSbot::onStart()
   
   Broodwar->enableFlag(Flag::CompleteMapInformation); /*** uncomment to disable FOG OF WAR***/
 
-  supplyProviderType = Broodwar->self()->getRace().getSupplyProvider();
+  
 
   // Set the command optimization level so that common commands can be grouped
   // and reduce the bot's APM (Actions Per Minute). 
@@ -169,10 +94,6 @@ void SGOMSbot::onStart()
 	if ( Broodwar->enemy() ) // First make sure there is an enemy
 		Broodwar << "SGOMSbot set to race: " << Broodwar->self()->getRace() << " vs enemy race: " << Broodwar->enemy()->getRace() << std::endl;
 
-	//Init unit groups
-	workersUnion.clear();
-	workersGas.clear();
-	workersMinerals.clear();
 
 
 	// Initialize Terrain Analyzer
@@ -183,15 +104,7 @@ void SGOMSbot::onStart()
 	Broodwar << "Analyzing map... this may take a minute" << std::endl;;
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AnalyzeThread, NULL, 0, NULL);
 
-	//Finding home base
-	for (auto &u : Broodwar->self()->getUnits())
-	{
-		if (u->getType().isResourceDepot())
-		{
-			commandCentre = u;
-		}
-		
-	}//end iterate to find command centre
+
 }//end onStart
 
 /*
@@ -212,6 +125,10 @@ void SGOMSbot::onEnd(bool isWinner)
 	Default is 24 FPS.
 */
 
+/************************************************************/
+/********************   ON FRAME CYCLE  *********************/
+/************************************************************/
+
 void SGOMSbot::onFrame()
 {
   // Called once every game frame
@@ -226,357 +143,340 @@ void SGOMSbot::onFrame()
     if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
         //return;
 
-    updateSupplyInfo();
+    contextModule.updateSupplyInfo();
     drawHUDinfo();
 
-    GameAgent.update();
+    //gamePlan = strategyModule.getNextPlan();
+    //if ( gamePlan != nullptr )
 
-    numBarracks = 0; //reset until Building Groups used
-    numMarines = 0; //reset until Unit Groups used
-    numWorkers = 0; //reset until Unit Groups used
-    numUnderConstruction = 0;
-
-
-
-   
-    if ( rawSupplyUsed >= rawSupplyTotal -6 ) //we want a buffer of 3 units
-    {
-        //Broodwar << "SUPPLY CHECK: blocked." << std::endl;
-		supplyBlocked = true;
-        
-	}//end if insufficient supply error
-    else 
-	{
-        //Broodwar << "SUPPLY CHECK: free." << std::endl;
-        supplyBlocked = false;
-        
-	}//end else have enough supply
-
-	
-
-  
-  /*
-  ==================================================
-  ====================  MAIN LOOP  =================
-  ==================================================
-  */
-  
-	
-//================ MAYBE DECLARATIVE MEMORY  ===================
-  // Iterate through all the units that we own, create proper groupings
-  for (auto &u : Broodwar->self()->getUnits())
-  {	  
-    // Ignore the unit if it no longer exists
-    // Make sure to include this block when handling any Unit pointer!
-    if ( !u->exists() )
-      continue;
-
-    // Ignore the unit if it has one of the following status ailments
-    if ( u->isLockedDown() || u->isMaelstrommed() || u->isStasised() )
-      continue;
-
-    // Ignore the unit if it is in one of the following states
-    if ( u->isLoaded() || !u->isPowered() || u->isStuck() )
-      continue;
-
-    // Ignore the unit if it is incomplete
-    if ( !u->isCompleted() )
-      continue;
     
-    // Tally unit if it is contructing
-	if (u->isConstructing())
-	{
-        numWorkers++; //increase number of workers we are aware of
-        workersUnion.insert(u);
-        continue;
-	}
 
-	// filter out units which aren't buildings under construction
-	if (u->getType().isBuilding() && u->isBeingConstructed() )
-	{
-        numUnderConstruction++;
-	}
+    //if (gamePlan->isDone() )
+    //    gamePlan = strategyModule.getNextPlan();
+    //if (gameTask->isDone())
+    //    gameTask = gamePlan->getNextTask();
+    //if (gameOp->isDone())
+    //    gameOp = gameTask->getNextOp();
 
-    /**********************************************/
-    /*************** WORKER UNIT TALLY *******/
-    /**********************************************/
 
-    // If the unit is a worker unit
-    if (u->getType().isWorker())
-    {
-        numWorkers++; //increase number of workers we are aware of
-        workersUnion.insert(u);
-     }//end if isWorker
 
-    /**********************************************/
-    /*************** ATTACK UNIT TALLY *****************/
-    /**********************************************/
+    /*=============================================*/
+    /*==========  SGOMS LOOP  =====================*/
+    /*=============================================*/
 
-    if (u->getType() == BWAPI::UnitTypes::Terran_Marine && !u->isBeingConstructed())
-    {
-        numMarines++; //increase the number of marines we are aware of
-		marinesUnion.insert(u);        
-    }
+    {//while still have unit tasks
 
-    /**********************************************/
-    /*************** RESOURCE DEPOTS (Nexus/Command Centre/Hive) **************/
-    /**********************************************/
-
-	//================ PRODCUTION: UNIT TASK  ===================    
-
-    if (u->getType().isResourceDepot() && numWorkers < 20 ) // A resource depot is a Command Center, Nexus, or Hatchery
-    {
-        int scvCost = BWAPI::UnitTypes::Terran_SCV.mineralPrice();
-        // Order the depot to construct more workers! But only when it is idle.
-        if (!supplyBlocked && u->isIdle() && Broodwar->self()->minerals() >= scvCost + reservedMineralsAll )
+        //retrieve next Operator / Method
         {
-            Broodwar << "UNITS: Building SCV." << std::endl;
-            u->train(u->getType().getRace().getWorker());
-            // If that fails, draw the error at the location so that you can visibly see what went wrong!
-            // However, drawing the error once will only appear for a single frame
-            // so create an event that keeps it on the screen for some frames
+            //Execute operator(s)
         }
 
-    }//if unit is a resource depot
+        //Update situation knowledge (from Parallel external monitoring)
+        
 
- 
+        //Evaluate situation (determine arousal / emergency)
+
+        //Is everything okay?
+        {
+            //If not, consider problem solving (depends on risk/arousal)
+
+            //Problem solve?
+            {
+                //doProblemSolve()
+            }
+        }
+
+        if ( awarenessModule.emergency) //if emergency, break
+        {
+            Broodwar << "EMERGENCY: placeholder" << std::endl;;
+            //break
+        }
+
+    }//while still have unit tasks
+
+    for (auto &u : Broodwar->self()->getUnits())
+    {
+
+        // Ignore the unit if it no longer exists
+        // Make sure to include this block when handling any Unit pointer!
+        if (!u->exists())
+            continue;
+
+        // Ignore the unit if it has one of the following status ailments
+        if (u->isLockedDown() || u->isMaelstrommed() || u->isStasised())
+            continue;
+
+        // Ignore the unit if it is in one of the following states
+        if (u->isLoaded() || !u->isPowered() || u->isStuck())
+            continue;
+
+        // Ignore the unit if it is incomplete
+        if (!u->isCompleted())
+            continue;
+
+        /**********************************************/
+        /*************** RESOURCE DEPOTS (Nexus/Command Centre/Hive) **************/
+        /**********************************************/
+
+        //================ PRODCUTION: UNIT TASK  ===================    
+
+        if (u->getType().isResourceDepot() && contextModule.numWorkers < 20) // A resource depot is a Command Center, Nexus, or Hatchery
+        {
+            int scvCost = BWAPI::UnitTypes::Terran_SCV.mineralPrice();
+            // Order the depot to construct more workers! But only when it is idle.
+            if (!contextModule.supplyBlocked && u->isIdle() && Broodwar->self()->minerals() >= scvCost + contextModule.reservedMineralsAll)
+            {
+                Broodwar << "UNITS: Building SCV." << std::endl;
+                u->train(u->getType().getRace().getWorker());
+                // If that fails, draw the error at the location so that you can visibly see what went wrong!
+                // However, drawing the error once will only appear for a single frame
+                // so create an event that keeps it on the screen for some frames
+            }
+
+        }//if unit is a resource depot
+
+        /**********************************************/
+        /*************** BARRACKS *****************/
+        /**********************************************/
+
+        if (u->getType() == BWAPI::UnitTypes::Terran_Barracks)
+        {
+            if (!u->isBeingConstructed())
+            {
+                contextModule.numBarracks += 1; //increment number of barracks we are aware of
+
+                if (!u->isTraining() && !contextModule.supplyBlocked && (Broodwar->self()->minerals() >= BWAPI::UnitTypes::Terran_Marine.mineralPrice() + contextModule.reservedMineralsAll))
+                {
+                    
+                    u->build(BWAPI::UnitTypes::Terran_Marine);
+                    
+                    Broodwar << "BARRACKS: Training Marine." << std::endl;;
+                }
+
+            }
+        }
 
 
 
-
-	/**********************************************/
-	/*************** BARRACKS *****************/
-	/**********************************************/
-	
-	if (u->getType() == BWAPI::UnitTypes::Terran_Barracks)
-	{
-		if (!u->isBeingConstructed())
-		{
-			numBarracks += 1; //increment number of barracks we are aware of
-
-            if (!u->isTraining() && !supplyBlocked && (Broodwar->self()->minerals() >= BWAPI::UnitTypes::Terran_Marine.mineralPrice() + reservedMineralsAll))
-			{
-				u->build(BWAPI::UnitTypes::Terran_Marine);
-				Broodwar << "BARRACKS: Training Marine." << std::endl;;
-			}
-			
-		}		
-	}
-
-   
-
-  } //for loop closure: unit iterator
-    
-
-  /**********************************************/
-  /*************** SUPPLY CONSTRUCTION ************/
-  /**********************************************/
-
-  /*======================= Build a Supply Depot=================*/
-  if (supplyBlocked && !makingDepot && supplyMaker_p && !supplyMaker_p->isConstructing() && Broodwar->self()->minerals() >= ( BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice() + reservedMineralsAll ) )
-  {
-	  Broodwar << "SUPPLY: Supply blocked, need a depo." << std::endl;
-	  
-	  // Retrieve a unit that is capable of constructing the supply needed
-	  //Unit supplyBuilder = u->getClosestUnit(GetType == supplyProviderType.whatBuilds().first && (IsIdle || IsGatheringMinerals) && IsOwned);
-	  //TilePosition buildPosition = Broodwar->getBuildLocation(BWAPI::BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
-	  //constructionWorker_p->build(BWAPI::UnitTypes::Terran_Barracks, buildPosition);
-
-	  UnitType supplyProviderType = supplyMaker_p->getType().getRace().getSupplyProvider();
-
-	  if (supplyProviderType.isBuilding()) //we get unit supplies from a depot/pylon
-	  {
-		  Broodwar << "BUILDING: Tasking construction: Depot." << std::endl;
-		  TilePosition targetBuildLocation = Broodwar->getBuildLocation(supplyProviderType, supplyMaker_p->getTilePosition());
-		  if (targetBuildLocation.isValid())
-		  {
-			  // Register an event that draws the target build location
-			  Broodwar->registerEvent([targetBuildLocation, supplyProviderType](Game*){Broodwar->drawBoxMap(Position(targetBuildLocation), Position(targetBuildLocation + supplyProviderType.tileSize()), Colors::Green); }, nullptr, supplyProviderType.buildTime() + 100);
-
-			  // Order the builder to construct the supply structure
-			  supplyMaker_p->build(supplyProviderType, targetBuildLocation);
-
-			  //reserve minerals for the depot, set state flags
-			  reservedMineralsSupply += BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice();
-
-			  //isConstruction = true;
-			  makingDepot = true;
-
-		  }// end if target building location
-	  }// end if supply is from a building
-	  else //supply is from a unit (overlord)
-	  {
-		  Broodwar << "WARNING: Training Overlord (Zerg only). Should not be here." << std::endl;
-		  // Train the supply provider (Overlord) if the provider is not a structure
-		  supplyMaker_p->train(supplyProviderType);
-	  }//end else supply is from a unit
-
-  }// end if supply blocked
+    } //for loop closure: unit iterator
 
 
-  /**********************************************/
-  /*************** BARRACKS CONSTRUCTION ************/
-  /**********************************************/
+    /**********************************************/
+    /*************** SUPPLY CONSTRUCTION ************/
+    /**********************************************/
 
-  int barracksCost = BWAPI::UnitTypes::Terran_Barracks.mineralPrice();
+    /*======================= Build a Supply Depot=================*/
+        if (contextModule.supplyBlocked && !contextModule.makingDepot && contextModule.supplyMaker_p && !contextModule.supplyMaker_p->isConstructing() && Broodwar->self()->minerals() >= (BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice() + contextModule.reservedMineralsAll))
+    {
+        Broodwar << "SUPPLY: Supply blocked, need a depo." << std::endl;
 
-  if (!supplyBlocked && !makingBarracks  && constructionWorker_p && !constructionWorker_p->isConstructing() && Broodwar->self()->minerals() >= (barracksCost + reservedMineralsAll))
-  {
-	  
+        // Retrieve a unit that is capable of constructing the supply needed
+        //Unit supplyBuilder = u->getClosestUnit(GetType == supplyProviderType.whatBuilds().first && (IsIdle || IsGatheringMinerals) && IsOwned);
+        //TilePosition buildPosition = Broodwar->getBuildLocation(BWAPI::BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
+        //constructionWorker_p->build(BWAPI::UnitTypes::Terran_Barracks, buildPosition);
 
-	  //find a location and construct it
-      BWAPI::TilePosition targetBuildLocation = Broodwar->getBuildLocation(BWAPI::UnitTypes::Terran_Barracks, constructionWorker_p->getTilePosition());
+        UnitType supplyProviderType = contextModule.supplyMaker_p->getType().getRace().getSupplyProvider();
 
-      BWAPI::UnitType AttackProviderType = BWAPI::UnitTypes::Terran_Barracks;
-	  // Register an event that draws the target build location
-      Broodwar->registerEvent([targetBuildLocation, AttackProviderType](BWAPI::Game*){Broodwar->drawBoxMap(BWAPI::Position(targetBuildLocation), BWAPI::Position(targetBuildLocation + AttackProviderType.tileSize()), BWAPI::Colors::Red); }, nullptr, AttackProviderType.buildTime() + 100);
-	  constructionWorker_p->build(AttackProviderType, targetBuildLocation);
-	  
-	  Broodwar << "BUILDING: Tasking construction: Barracks" << std::endl;
-	  reservedMineralsBase += barracksCost;
-	  //isConstruction = true;
-	  makingBarracks = true;
-	  //state = 1; //now building barracks 1			
-  }
+        if (supplyProviderType.isBuilding()) //we get unit supplies from a depot/pylon
+        {
+            Broodwar << "BUILDING: Tasking construction: Depot." << std::endl;
+            TilePosition targetBuildLocation = Broodwar->getBuildLocation(supplyProviderType, contextModule.supplyMaker_p->getTilePosition());
+            if (targetBuildLocation.isValid())
+            {
+                // Register an event that draws the target build location
+                Broodwar->registerEvent([targetBuildLocation, supplyProviderType](Game*){Broodwar->drawBoxMap(Position(targetBuildLocation), Position(targetBuildLocation + supplyProviderType.tileSize()), Colors::Green); }, nullptr, supplyProviderType.buildTime() + 100);
 
-  /*******************************************************/
-  /*************    CONTROL ARMY   *******************/
-  /*******************************************************/
+                // Order the builder to construct the supply structure
+                contextModule.supplyMaker_p->build(supplyProviderType, targetBuildLocation);
 
-  if (numMarines >= 10)
-	{
-		if (!attackingBase)
-		{
-			Broodwar << "COMBAT: Squad assembled, attacking nearest unit." << std::endl;
-			attackingBase = true;
-		}
+                //reserve minerals for the depot, set state flags
+                contextModule.reservedMineralsSupply += BWAPI::UnitTypes::Terran_Supply_Depot.mineralPrice();
 
-		for (auto &u : Broodwar->self()->getUnits())
-		{
+                //isConstruction = true;
+                contextModule.makingDepot = true;
+
+            }// end if target building location
+        }// end if supply is from a building
+        else //supply is from a unit (overlord)
+        {
+            Broodwar << "WARNING: Training Overlord (Zerg only). Should not be here." << std::endl;
+            // Train the supply provider (Overlord) if the provider is not a structure
+            contextModule.supplyMaker_p->train(supplyProviderType);
+        }//end else supply is from a unit
+
+    }// end if supply blocked
+
+
+    /**********************************************/
+    /*************** BARRACKS CONSTRUCTION ************/
+    /**********************************************/
+
+    int barracksCost = BWAPI::UnitTypes::Terran_Barracks.mineralPrice();
+
+    if (!contextModule.supplyBlocked && !contextModule.makingBarracks  && contextModule.constructionWorker_p && !contextModule.constructionWorker_p->isConstructing() && Broodwar->self()->minerals() >= (barracksCost + contextModule.reservedMineralsAll))
+    {
+
+
+        //find a location and construct it
+        BWAPI::TilePosition targetBuildLocation = Broodwar->getBuildLocation(BWAPI::UnitTypes::Terran_Barracks, contextModule.constructionWorker_p->getTilePosition());
+
+        BWAPI::UnitType AttackProviderType = BWAPI::UnitTypes::Terran_Barracks;
+        // Register an event that draws the target build location
+        Broodwar->registerEvent([targetBuildLocation, AttackProviderType](BWAPI::Game*){Broodwar->drawBoxMap(BWAPI::Position(targetBuildLocation), BWAPI::Position(targetBuildLocation + AttackProviderType.tileSize()), BWAPI::Colors::Red); }, nullptr, AttackProviderType.buildTime() + 100);
+        contextModule.constructionWorker_p->build(AttackProviderType, targetBuildLocation);
+
+        Broodwar << "BUILDING: Tasking construction: Barracks" << std::endl;
+        contextModule.reservedMineralsBase += barracksCost;
+        //isConstruction = true;
+        contextModule.makingBarracks = true;
+        //state = 1; //now building barracks 1			
+    }
+
+
+
+    /*******************************************************/
+    /*************    CONTROL ARMY   *******************/
+    /*******************************************************/
+
+    if (contextModule.numMarines >= 10)
+    {
+        if (!contextModule.attackingBase)
+        {
+            Broodwar << "COMBAT: Squad assembled, attacking nearest unit." << std::endl;
+            contextModule.attackingBase = true;
+        }
+
+        for (auto &u : Broodwar->self()->getUnits())
+        {
             if (u->getType() == BWAPI::UnitTypes::Terran_Marine && !u->isBeingConstructed() && !u->isAttacking() && !u->isMoving())
-			{
+            {
                 BWAPI::Unit closestEnemy = NULL;
 
-				for (auto &e : Broodwar->enemy()->getUnits())
-				{
-					if ((closestEnemy == NULL) || (e->getDistance(u->getPosition()) < closestEnemy->getDistance(u->getPosition())))
-					{
-						closestEnemy = e;
-					}
-				}
-				u->attack(closestEnemy->getPosition(), false);
+                for (auto &e : Broodwar->enemy()->getUnits())
+                {
+                    if ((closestEnemy == NULL) || (e->getDistance(u->getPosition()) < closestEnemy->getDistance(u->getPosition())))
+                    {
+                        closestEnemy = e;
+                    }
+                }
+                u->attack(closestEnemy->getPosition(), false);
 
-			}//end if marine
-		}//end for all units
-	}	  
-	  
-
-	  //Unit closestEnemy = NULL;
-
-	  //for (auto &e : Broodwar->enemy()->getUnits())
-	  //{
-		 // if ((closestEnemy == NULL) || (e->getDistance( marinesUnion.getPosition() ) < closestEnemy->getDistance( marinesUnion.getPosition() )))
-		 // {
-			//  closestEnemy = e;
-		 // }
-	  //}
-	  //marinesUnion.attack(closestEnemy->getPosition(), false);
-		  
-	  //u->attack(closestEnemy->getPosition(), false);
-
-      
-      //command marine group to attack closest enemy/structure
-
-  if (attackingBase && numMarines < 10) //was attacking but we got our asses kicked
-  {
-	  Broodwar << "COMBAT: Getting hurt, run away!!" << std::endl;
-	  marinesUnion.move(commandCentre->getPosition(), false);
-	  attackingBase = false;
-  }
-  
-
-  
-  /*******************************************************/
-  /*************    CLEAN UP           *******************/
-  /*******************************************************/
-
-  if (constructionWorker_p && makingBarracks )      
-  {
-      if (!constructionWorker_p->isConstructing() && !constructionWorker_p->isMoving() )
-      {
-          Broodwar << "BUILDING: barracks finished, release worker and reserved resources." << std::endl;
-          makingBarracks = false;
-          reservedMineralsBase= 0;
-      }
-      else if (constructionWorker_p->isConstructing() && reservedMineralsBase > 0)//still under construction
-      {
-          reservedMineralsBase = 0; //very simple, should tracks multiple buildings and resource types
-      }
-      else
-      {
-          //worker is en route to construction site
-      }      
-  }
-  if (supplyMaker_p && makingDepot)
-  {
-      if ( !supplyMaker_p->isConstructing() && !constructionWorker_p->isMoving() )
-      {
-          Broodwar << "BUILDING: supply finished, release worker and reserved resources." << std::endl;
-          makingDepot = false;          
-          reservedMineralsSupply = 0;
-      }
-      else if (supplyMaker_p->isConstructing() && reservedMineralsSupply > 0)//still under construction
-      {
-          reservedMineralsSupply = 0; //very simple, should tracks multiple buildings and resource types
-      }
-      else
-      {
-          //worker is en route to construction site
-      }
-  }
+            }//end if marine
+        }//end for all units
+    }
 
 
-  /*******************************************************/
-  /*************    Assign Workers           *******************/
-  /*******************************************************/
+    //Unit closestEnemy = NULL;
 
-  //check to see if we have an assigned construction worker
+    //for (auto &e : Broodwar->enemy()->getUnits())
+    //{
+    // if ((closestEnemy == NULL) || (e->getDistance( marinesUnion.getPosition() ) < closestEnemy->getDistance( marinesUnion.getPosition() )))
+    // {
+    //  closestEnemy = e;
+    // }
+    //}
+    //marinesUnion.attack(closestEnemy->getPosition(), false);
 
-  for (auto &u : workersUnion)
-  {
-      if (constructionWorker_p == nullptr)
-      {
-          Broodwar << "WORKER: Assigning construction worker." << std::endl;
-          constructionWorker_p = u;
-      }
-      else if (supplyMaker_p == nullptr)
-      {
-          Broodwar << "WORKER: Assigning supply maker." << std::endl;
-          supplyMaker_p = u;
-      }
+    //u->attack(closestEnemy->getPosition(), false);
 
-      if (u->isIdle()) // if our worker is idle, make them so domething useful
-      {
-          // Order workers carrying a resource to return them to the center, otherwise find a mineral patch to harvest.
-          if (u->isCarryingGas() || u->isCarryingMinerals())
-          {
-              u->returnCargo();
-          }
-          else if (!u->getPowerUp())  // The worker cannot harvest anything if it is carrying a powerup such as a flag (CTF only)
-          {
-              // Harvest from the nearest mineral patch or gas refinery
-              if ( !u->gather ( u->getClosestUnit( IsMineralField || IsRefinery ) ) )
-                  //if (!u->gather(u->getClosestUnit( isMinera) ) )
-              {
-                  // If the call fails, then print the last error message
-                  Broodwar << Broodwar->getLastError() << std::endl;
-              }
 
-          } // closure: has no powerup
-      } // closure: if idle
-      //do something
-  }//end for workers union
-  
+    //command marine group to attack closest enemy/structure
+
+    if (contextModule.attackingBase && contextModule.numMarines < 10) //was attacking but we got our asses kicked
+    {
+        Broodwar << "COMBAT: Getting hurt, run away!!" << std::endl;
+        contextModule.marinesUnion.move(contextModule.commandCentre->getPosition(), false);
+        contextModule.attackingBase = false;
+    }
+
+
+
+    /*******************************************************/
+    /*************    CLEAN UP           *******************/
+    /*******************************************************/
+
+    if (contextModule.constructionWorker_p && contextModule.makingBarracks)
+    {
+        if (!contextModule.constructionWorker_p->isConstructing() && !contextModule.constructionWorker_p->isMoving())
+        {
+            Broodwar << "BUILDING: barracks finished, release worker and reserved resources." << std::endl;
+            contextModule.makingBarracks = false;
+            contextModule.reservedMineralsBase = 0;
+        }
+        else if (contextModule.constructionWorker_p->isConstructing() && contextModule.reservedMineralsBase > 0)//still under construction
+        {
+            contextModule.reservedMineralsBase = 0; //very simple, should tracks multiple buildings and resource types
+        }
+        else
+        {
+            //worker is en route to construction site
+        }
+    }
+    if (contextModule.supplyMaker_p && contextModule.makingDepot)
+    {
+        if (!contextModule.supplyMaker_p->isConstructing() && !contextModule.constructionWorker_p->isMoving())
+        {
+            Broodwar << "BUILDING: supply finished, release worker and reserved resources." << std::endl;
+            contextModule.makingDepot = false;
+            contextModule.reservedMineralsSupply = 0;
+        }
+        else if (contextModule.supplyMaker_p->isConstructing() && contextModule.reservedMineralsSupply > 0)//still under construction
+        {
+            contextModule.reservedMineralsSupply = 0; //very simple, should tracks multiple buildings and resource types
+        }
+        else
+        {
+            //worker is en route to construction site
+        }
+    }
+
+
+    /*******************************************************/
+    /*************    Assign Workers           *******************/
+    /*******************************************************/
+
+    //check to see if we have an assigned construction worker
+
+    for (auto &u : contextModule.workersUnion)
+    {
+        if (contextModule.constructionWorker_p == nullptr)
+        {
+            Broodwar << "WORKER: Assigning construction worker." << std::endl;
+            contextModule.constructionWorker_p = u;
+        }
+        else if (contextModule.supplyMaker_p == nullptr)
+        {
+            Broodwar << "WORKER: Assigning supply maker." << std::endl;
+            contextModule.supplyMaker_p = u;
+        }
+
+        if (u->isIdle()) // if our worker is idle, make them so domething useful
+        {
+            // Order workers carrying a resource to return them to the center, otherwise find a mineral patch to harvest.
+            if (u->isCarryingGas() || u->isCarryingMinerals())
+            {
+                u->returnCargo();
+            }
+            else if (!u->getPowerUp())  // The worker cannot harvest anything if it is carrying a powerup such as a flag (CTF only)
+            {
+                // Harvest from the nearest mineral patch or gas refinery
+                if (!u->gather(u->getClosestUnit(IsMineralField || IsRefinery)))
+                    //if (!u->gather(u->getClosestUnit( isMinera) ) )
+                {
+                    // If the call fails, then print the last error message
+                    Broodwar << Broodwar->getLastError() << std::endl;
+                }
+
+            } // closure: has no powerup
+
+        } // closure: if idle
+
+        //do something
+
+    }//end for workers union
+
+
+
 }//Function onFrame()
 
 
@@ -753,41 +653,32 @@ void SGOMSbot::drawTerrainData()
 	}
 }
 
-void SGOMSbot::updateSupplyInfo()
-{
-    reservedMineralsAll = reservedMineralsSupply + reservedMineralsBase + reservedMineralsUnits;
-    reservedGasAll = reservedGasBase + reservedGasUnits;
-    rawSupplyUsed = BWAPI::Broodwar->self()->supplyUsed();
-    rawSupplyTotal = BWAPI::Broodwar->self()->supplyTotal();
-}
+
 
 void SGOMSbot::drawHUDinfo()
 {
-    lastChecked = Broodwar->getFrameCount();
-
-    Broodwar->drawTextScreen(10, 00, "Timer: %d", lastChecked);
-    Broodwar->drawTextScreen(10, 20, "Supply Blocked: %s", supplyBlocked ? "true" : "false");
-    //Broodwar->drawTextScreen(10, 30, "Next Building: %s", nextBuilding == 0 ? "Supply" : "Barracks");
-    //Broodwar->drawTextScreen(10, 40, "Next Unit: %s", nextUnit == 0 ? "SCV" : "Marine");
-    Broodwar->drawTextScreen(10, 50, "Barracks Construction: %s", makingBarracks == false ? "false" : "true");
-    Broodwar->drawTextScreen(10, 70, "Supply Construction: %s", makingDepot == false ? "false" : "true");
-    //Broodwar->drawTextScreen(10, 60, "Construction: %d", numUnderConstruction);
-
-    /* Update the HUD with debug stats*/
-    Broodwar->drawTextScreen(150, 0, "Total Minerals: %d", Broodwar->self()->minerals());
-    Broodwar->drawTextScreen(150, 10, "Reserved Minerals: %d", reservedMineralsAll);
-    Broodwar->drawTextScreen(150, 20, "Total Gas: %d", Broodwar->self()->gas());
-    Broodwar->drawTextScreen(150, 30, "Reserved Gas: %d", reservedGasAll);
-    Broodwar->drawTextScreen(150, 40, "Raw Supply Total: %d", rawSupplyTotal);
-    Broodwar->drawTextScreen(150, 50, "Raw Supply Used: %d", rawSupplyUsed);
-
-    Broodwar->drawTextScreen(150, 70, "Barracks: %d", numBarracks);
-    Broodwar->drawTextScreen(150, 80, "Marines: %d", numMarines);
-    Broodwar->drawTextScreen(150, 90, "Workers: %d", numWorkers);
-
     // Display the game frame rate as text in the upper left area of the screen
     Broodwar->drawTextScreen(300, 0, "FPS: %d", Broodwar->getFPS());
     Broodwar->drawTextScreen(300, 10, "Average FPS: %f", Broodwar->getAverageFPS());
+    Broodwar->drawTextScreen(10, 00, "Timer: %d", Broodwar->getFrameCount());
+
+    Broodwar->drawTextScreen(10, 20, "Supply Blocked: %s", contextModule.isSupplyBlocked() ? "true" : "false");
+    Broodwar->drawTextScreen(10, 50, "Barracks Construction: %s", contextModule.makingBarracks == false ? "false" : "true");
+    Broodwar->drawTextScreen(10, 70, "Supply Construction: %s", contextModule.makingDepot == false ? "false" : "true");
+
+    /* Update the HUD with debug stats*/
+    Broodwar->drawTextScreen(150, 0, "Total Minerals: %d", Broodwar->self()->minerals());
+    Broodwar->drawTextScreen(150, 10, "Reserved Minerals: %d", contextModule.reservedMineralsAll);
+    Broodwar->drawTextScreen(150, 20, "Total Gas: %d", Broodwar->self()->gas());
+    Broodwar->drawTextScreen(150, 30, "Reserved Gas: %d", contextModule.reservedGasAll);
+    Broodwar->drawTextScreen(150, 40, "Raw Supply Total: %d", contextModule.rawSupplyTotal);
+    Broodwar->drawTextScreen(150, 50, "Raw Supply Used: %d", contextModule.rawSupplyUsed);
+
+    Broodwar->drawTextScreen(150, 70, "Barracks: %d", contextModule.numBarracks);
+    Broodwar->drawTextScreen(150, 80, "Marines: %d", contextModule.numMarines);
+    Broodwar->drawTextScreen(150, 90, "Workers: %d", contextModule.numWorkers);
+
+
 
     //BWTA draw if finished analyzing the map
     if (analysis_just_finished)
@@ -799,3 +690,9 @@ void SGOMSbot::drawHUDinfo()
     if (analyzed)
         drawTerrainData();
 }
+
+void SGOMSbot::cycle()
+{
+
+
+}//end SGOMSbot::update()

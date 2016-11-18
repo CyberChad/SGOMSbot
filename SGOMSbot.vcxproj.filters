@@ -12,9 +12,6 @@
     <ClCompile Include="Source\Operator.cpp">
       <Filter>Micro Stuff\Operators</Filter>
     </ClCompile>
-    <ClCompile Include="Source\EnvironmentMonitor.cpp">
-      <Filter>External Monitoring</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Buffer.cpp">
       <Filter>Micro Stuff\ACT-R</Filter>
     </ClCompile>
@@ -30,12 +27,14 @@
     <ClCompile Include="Source\Context.cpp">
       <Filter>Macro Stuff</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Goal.cpp">
-      <Filter>Macro Stuff</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Agent.cpp" />
     <ClCompile Include="Source\Awareness.cpp">
       <Filter>External Monitoring</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Strategy.cpp">
+      <Filter>Macro Stuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Goal.cpp">
+      <Filter>Macro Stuff</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +47,6 @@
     </ClInclude>
     <ClInclude Include="Source\Operator.h">
       <Filter>Micro Stuff\Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\EnvironmentMonitor.h">
-      <Filter>External Monitoring</Filter>
     </ClInclude>
     <ClInclude Include="Source\Buffer.h">
       <Filter>Micro Stuff\ACT-R</Filter>
@@ -67,13 +63,15 @@
     <ClInclude Include="Source\Context.h">
       <Filter>Macro Stuff</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Goal.h">
-      <Filter>Macro Stuff</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Common.h" />
-    <ClInclude Include="Source\Agent.h" />
     <ClInclude Include="Source\Awareness.h">
       <Filter>External Monitoring</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Strategy.h">
+      <Filter>Macro Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Goal.h">
+      <Filter>Macro Stuff</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,11 @@ namespace SGOMS
         onUnitDestry (mine or enemy, depending on context/target)
         nuclearLaunchDetected
         */
+
+        bool emergency;
+        int arousal;
+        int flag;
+
     };
 }
 

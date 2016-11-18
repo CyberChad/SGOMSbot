@@ -31,7 +31,9 @@ public:
 
     const size_t & type() const;
 
-    std::string getName() const;
+    std::string getName(){
+        return myName;
+    };
 	/*
 	Different types of Planning Units
 	A list or plan of unit tasks to perform. Can be modified/updated.
@@ -40,9 +42,8 @@ public:
 protected:
        
     std::string myName;
-
-    std::vector<UnitTask> UnitTaskVector;
-    std::list<UnitTask> UnitTaskList;
+    std::vector<UnitTask*> UnitTaskVector;
+    std::list<UnitTask*> UnitTaskList;
 
 };
 

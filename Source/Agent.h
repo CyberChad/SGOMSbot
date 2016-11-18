@@ -22,10 +22,7 @@ namespace SGOMS
 
         void update();
 
-    protected:
-        std::vector<Goal> GoalVector;
-        Awareness monitor;
-        Context knowledge;       
+    
     };
 }
 

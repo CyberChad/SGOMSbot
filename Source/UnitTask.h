@@ -1,27 +1,37 @@
 #pragma once
 
-// Remember not to use "Broodwar" in any global class constructor!
+#include <BWAPI.h>
+#include "Common.h"
+#include "Operator.h"
 
-//namespace SGOMSbot
+namespace UnitTaskTypes
+{
+    enum UnitType
+    { 
+        ScanUnits,
+        BuildBuilding, 
+        BuildUnit, 
+        
+        SelectUnit, 
+        SelectBuilding,
+                
+        Default 
+    };
+}
 
 class UnitTask
 {
+    
     public:
-	    UnitTask();
-	    ~UnitTask()
-	    {
-		    //do nothing
-	    };
-
-	/*Contaner for Generic UnitTask (extended by Building/Combat/Unit/Worker commands)
-
-	To be contained by Planning Unit type
-	Contains a list of Methods/Operators (Queue)
-		
-	Contains a pointer to SituationKnowledge
-
-
-	*/
+        UnitTask();
+        UnitTask(UnitTaskTypes::UnitType t);
+	    ~UnitTask(){};
+        void execute();
+        
+        UnitTaskTypes::UnitType myType;
+        Operator myOperator;
+        std::list<Operator*> opList;
 };
+
 
 

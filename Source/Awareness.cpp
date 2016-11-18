@@ -8,9 +8,10 @@ Awareness::Awareness()
 
 void Awareness::initialize()
 {
-    //do some stuff
+    emergency = false;
+    arousal = 0;
+    flag = 0; //create enum
 }
-
 
 Awareness::~Awareness()
 {

@@ -3,7 +3,14 @@
 #include <BWTA.h>
 #include <Windows.h>
 
-#include "Agent.h"
+//#include "Agent.h"
+#include "Strategy.h"
+#include "Context.h"
+#include "Awareness.h"
+#include "Goal.h"
+#include "PlanningUnit.h"
+#include "UnitTask.h"
+#include "Operator.h"
 
 //#include <boost/python.hpp>
 
@@ -16,9 +23,20 @@ namespace SGOMS
 {
     class SGOMSbot : public BWAPI::AIModule
     {
+        private:
+            
+            //std::vector<Goal> GoalVector;
+            Awareness awarenessModule;
+            Context contextModule;
+            Strategy strategyModule;
 
-        Agent GameAgent;
-        
+            PlanningUnit * gamePlan = nullptr;
+            UnitTask * gameTask = nullptr;
+            Operator * gameOp = nullptr;
+
+            std::list<Operator> operatorList;
+
+    
         public:
             // Virtual functions for callbacks, leave these as they are.
             virtual void onStart(); //called only once at the beginning of the game
@@ -41,12 +59,24 @@ namespace SGOMS
             virtual void onSaveGame(std::string gameName); //Called when the state of the Broodwar game is saved to file.
 
             virtual void onUnitComplete(BWAPI::Unit unit); //Called when the state of a unit changes from incomplete to complete
-
-
+            
             // Everything below this line is safe to modify.
+
+        protected:
+
+            //bool barracks = false;
+            BWAPI::Player *myself; 
+
             void drawTerrainData();
             void updateSupplyInfo();
             void drawHUDinfo();
+            void cycle();
+
+    private:
+
+        
+
+
     };
 }
 
