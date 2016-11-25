@@ -30,14 +30,18 @@ namespace SGOMS
             Context contextModule;
             Strategy strategyModule;
 
-            PlanningUnit * gamePlan = nullptr;
-            UnitTask * gameTask = nullptr;
-            Operator * gameOp = nullptr;
+            PlanningUnit * planUnit = nullptr;
+            UnitTask * nextTask = nullptr;
+            Operator * nextOp = nullptr;
 
-            std::list<Operator> operatorList;
-
+            std::list<PlanningUnit> planUnitList;
+            
+            int myID;
     
         public:
+
+            BWAPI::Player *myself;
+            
             // Virtual functions for callbacks, leave these as they are.
             virtual void onStart(); //called only once at the beginning of the game
             virtual void onEnd(bool isWinner); //called once at the end of the match
@@ -65,7 +69,7 @@ namespace SGOMS
         protected:
 
             //bool barracks = false;
-            BWAPI::Player *myself; 
+            
 
             void drawTerrainData();
             void updateSupplyInfo();

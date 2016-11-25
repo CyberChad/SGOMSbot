@@ -14,6 +14,8 @@ namespace OperatorTypes
         SelectUnit,
         SelectBuilding,
 
+        Train,
+
         Default
     };
 }
@@ -22,9 +24,13 @@ class Operator
 {
     public:
         Operator();        
+        Operator(OperatorTypes::OpCode);
         ~Operator();
         
         OperatorTypes::OpCode myOp;
+
+        void setUnit(BWAPI::Unit u);
+        void setCommand(BWAPI::UnitCommand c);
 
         void move(BWAPI::UnitCommand c){};
         void build(BWAPI::UnitCommand c){};
@@ -35,8 +41,21 @@ class Operator
         void repair(){};
         void harvest(){};
 
-        BWAPI::Unit* theUnit;
-        BWAPI::UnitCommand* theCommand;
+        void execute();
+
+        BWAPI::Unit subject;
+        BWAPI::UnitType subjectType;
+        
+        BWAPI::Unit object;
+        BWAPI::UnitType objectType;
+        
+        BWAPI::Unit theUnit;
+        BWAPI::UnitType theUnitType;
+        BWAPI::UnitCommand theUnitCommand;
+        BWAPI::UnitCommandType theUnitCommandType;        
+
+        BWAPI::Unit* theUnit_ptr;
+        BWAPI::UnitCommand* theCommand_ptr;
 
     private:
                

@@ -21,7 +21,7 @@ namespace SGOMS
         nuclearLaunchDetected
         */
 
-        bool emergency;
+        bool emergency = false;
         int arousal;
         int flag;
 

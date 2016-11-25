@@ -4,6 +4,15 @@
 #include "Common.h"
 #include "PlanningUnit.h"
 
+//class Rush : public Strategy; build up quickly, attack en masse
+//class Steady : public Strategy; balance between moderate force and tech
+//class LongGame public Strategy ; defensive and resource heavy, high tech 
+
+namespace StrategyTypes
+{
+    enum { Default, Rush, Steady, Long};
+}
+
 namespace SGOMS
 {
 	//virtual function to inherit attributes common to all strategies
@@ -16,24 +25,22 @@ namespace SGOMS
 		Strategy();
 		~Strategy();
 
+        size_t _type;
+        const size_t & type() const{ return _type; };
+
         void initialize(std::string s);
-        std::string getStrategy();
+        std::string getStrategy(){
+            return myStrategy;
+        };
         void setStrategy(std::string s){ myStrategy = s; };
-        PlanningUnit * getNextPlan();
+        PlanningUnit * getNewPlan();
 
-        std::string myStrategy;
+        std::string myStrategy = "";
         PlanningUnit * currentPlan;
-        PlanningUnit * buildPlan;
-        PlanningUnit * attackPlan;
-        PlanningUnit * defendPlan;
 
-        std::list<PlanningUnit*> planningList;
+        std::list<PlanningUnit> planningList;
 		
 	};
         
-	//class Rush : public Strategy; build up quickly, attack en masse
 
-	//class Steady : public Strategy; balance between moderate force and tech
-
-	//class LongGame public Strategy ; defensive and resource heavy, high tech 
 }

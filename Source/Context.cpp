@@ -22,6 +22,11 @@ void Context::initialize()
     workersGas.clear();
     workersMinerals.clear();
 
+    numBarracks = 0; //reset until Building Groups used
+    numMarines = 0; //reset until Unit Groups used
+    numWorkers = 0; //reset until Unit Groups used
+    numUnderConstruction = 0;
+
     //Finding home base
     for (auto &u : Broodwar->self()->getUnits())
     {
@@ -37,6 +42,12 @@ void Context::initialize()
 
 void Context::update()
 {
+
+    numBarracks = 0; //reset until Building Groups used
+    numMarines = 0; //reset until Unit Groups used
+    numWorkers = 0; //reset until Unit Groups used
+    numUnderConstruction = 0;
+
     //================ MAYBE DECLARATIVE MEMORY  ===================
     // Iterate through all the units that we own, create proper groupings
     for (auto &u : Broodwar->self()->getUnits())
@@ -75,9 +86,19 @@ void Context::update()
         if (u->getType() == BWAPI::UnitTypes::Terran_Marine && !u->isBeingConstructed())
         {
             numMarines++; //increase the number of marines we are aware of
-            marinesUnion.insert(u);
         }
+        if (u->getType() == BWAPI::UnitTypes::Terran_Barracks && !u->isBeingConstructed())
+        {
+            numBarracks++; //increase the number of marines we are aware of
+            //marinesUnion.insert(u);
+        }
+
+
     }//end for all units loop
+
+    updateSupplyInfo();
+    updateWorkerInfo();
+    
 }//end Context::update()
 
 void Context::updateSupplyInfo()
@@ -86,14 +107,6 @@ void Context::updateSupplyInfo()
     reservedGasAll = reservedGasBase + reservedGasUnits;
     rawSupplyUsed = BWAPI::Broodwar->self()->supplyUsed();
     rawSupplyTotal = BWAPI::Broodwar->self()->supplyTotal();
-
-    numBarracks = 0; //reset until Building Groups used
-    numMarines = 0; //reset until Unit Groups used
-    numWorkers = 0; //reset until Unit Groups used
-    numUnderConstruction = 0;
-
-
-
 
     if (rawSupplyUsed >= rawSupplyTotal - 6) //we want a buffer of 3 units
     {
@@ -107,4 +120,46 @@ void Context::updateSupplyInfo()
         supplyBlocked = false;
 
     }//end else have enough supply
+}
+
+void Context::updateWorkerInfo()
+{
+    /*******************************************************/
+    /*************    CLEAN UP Worker State   **************/
+    /*******************************************************/
+
+    if (constructionWorker_p && makingBarracks)
+    {
+        if (!constructionWorker_p->isConstructing() && !constructionWorker_p->isMoving())
+        {
+            Broodwar << "BUILDING: barracks finished, release worker and reserved resources." << std::endl;
+            makingBarracks = false;
+            reservedMineralsBase = 0;
+        }
+        else if (constructionWorker_p->isConstructing() && reservedMineralsBase > 0)//still under construction
+        {
+            reservedMineralsBase = 0; //very simple, should tracks multiple buildings and resource types
+        }
+        else
+        {
+            //worker is en route to construction site
+        }
+    }
+    if (supplyMaker_p && makingDepot)
+    {
+        if (!supplyMaker_p->isConstructing() && !constructionWorker_p->isMoving())
+        {
+            Broodwar << "BUILDING: supply finished, release worker and reserved resources." << std::endl;
+            makingDepot = false;
+            reservedMineralsSupply = 0;
+        }
+        else if (supplyMaker_p->isConstructing() && reservedMineralsSupply > 0)//still under construction
+        {
+            reservedMineralsSupply = 0; //very simple, should tracks multiple buildings and resource types
+        }
+        else
+        {
+            //worker is en route to construction site
+        }
+    }
 }

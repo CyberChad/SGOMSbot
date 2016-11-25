@@ -4,11 +4,6 @@
 
 // Remember not to use "Broodwar" in any global class constructor!
 
-
-
-
-
-
 class Context
 {
     public:
@@ -18,6 +13,8 @@ class Context
         void initialize();
         void update();
         void updateSupplyInfo();
+        void updateWorkerInfo();
+
         bool isSupplyBlocked(){return supplyBlocked;};
 
         //Unit Management globals
@@ -27,11 +24,19 @@ class Context
         BWAPI::Unitset workersGas;
         BWAPI::Unitset availableWorkers;
 
+        BWAPI::Unitset workerSet;
+        BWAPI::Unitset marineSet;
+        BWAPI::Unitset barrackSet;
+        BWAPI::Unitset baseSet;
+
+        
         BWAPI::Unit constructionWorker_p = nullptr;
         BWAPI::Unit supplyMaker_p = nullptr;
 
         BWAPI::Unitset marinesUnion;
-        BWAPI::UnitType supplyProviderType = NULL;
+        BWAPI::UnitType supplyProviderType;
+
+        BWAPI::Unit mainBase = NULL;
 
         //Building Management globals
         int lastChecked = 0; // last game frame we checked if supply blocked
@@ -69,6 +74,9 @@ class Context
         //Combat globals
         bool attackingBase = false;
 
+        std::string currPlanUnit = "";
+        std::string currUnitTask = "";
+        std::string currGameOp = "";
 
         int numWorkers = 0;
         int numMarines = 0;

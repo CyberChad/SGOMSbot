@@ -1,14 +1,18 @@
 #include <BWAPI.h>
 #include "Strategy.h"
+#include "Context.h"
 #include "Common.h"
 
 
 using namespace SGOMS;
 using namespace BWAPI;
 
+bool debug = false;
+
 Strategy::Strategy()
 {
-    Broodwar << "Strategy: Creating" << std::endl;
+    Broodwar << "CREATE: Strategy Module" << std::endl;
+    myStrategy = "Default";
 }
 
 
@@ -19,59 +23,59 @@ Strategy::~Strategy()
 void Strategy::initialize(std::string s)
 {
     myStrategy = s;
-    //currentPlan = selectPlan();
-    //based on current strategy
+    Broodwar << "STRATEGY: Initialized! Using: " << myStrategy << std::endl;    
+}
 
-    if (s == "Default")
+PlanningUnit * Strategy::getNewPlan()
+{
+    //based on context and awareness, choose the most appropriate plan.
+
+    if (debug)
+        Broodwar << "Strategy: ENTER Get New Plan: Enter" << std::endl;
+
+    //***************** CHECK CONTEXT *********************
+
+    //for now we just go with Default, and build the base....
+
+    if (myStrategy == "Default")
     {
         currentPlan = new PlanningUnit("Default");
     }
-    else if (s == "Rush")
+    else if (myStrategy == "Rush")
     {
         currentPlan = new PlanningUnit("Attack");
 
     }
-    else if (s == "Tech")
+    else if (myStrategy == "Tech")
     {
-        currentPlan = new PlanningUnit("Attack");
-        
+        currentPlan = new PlanningUnit("Expand");
+
     }
-    else if (s == "Turtle")
+    else if (myStrategy == "Turtle")
     {
-        currentPlan = new PlanningUnit("Defend"); 
+        currentPlan = new PlanningUnit("Defend");
 
     }
     else // Default
     {
         currentPlan = new PlanningUnit("Default");
     }
+
+    //planningList.insert(currentPlan);
     
-    //planningList.push_back(buildPlan);
+    //PlanningUnit pu;
     
-    PlanningUnit * crap = getNextPlan();
-}
 
-std::string Strategy::getStrategy()
-{
-    return myStrategy;
-}
 
-PlanningUnit * Strategy::getNextPlan()
-{
-    //based on context and awareness, choose the most appropriate plan.
-        
-    PlanningUnit* pu;
-    std::string tmpname;
+    //for (std::list<PlanningUnit>::iterator list_iter = planningList.begin(); list_iter != planningList.end(); list_iter++)
+    //{
+    //    pu = *list_iter;
+    //    tmpname = (std::string)pu.getName();
 
-    Broodwar << "getNextPlan: Enter" << std::endl;
+    //    if (debug)
+    //        Broodwar << "Next Plan: " << tmpname << std::endl;
+    //}
 
-    for (std::list<PlanningUnit*>::iterator list_iter = planningList.begin(); list_iter != planningList.end(); list_iter++)
-    {
-        pu = *list_iter;
-        tmpname = (std::string)pu->getName();
-        Broodwar << "Next Plan: " << tmpname << std::endl;
-    }
-
-    return buildPlan;
+    return currentPlan;
     
 }//Strategy::getNextPlan()
