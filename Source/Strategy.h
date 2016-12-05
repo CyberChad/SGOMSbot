@@ -28,19 +28,30 @@ namespace SGOMS
         size_t _type;
         const size_t & type() const{ return _type; };
 
-        void initialize(std::string s);
-        std::string getStrategy(){
-            return myStrategy;
-        };
+        void initialize(std::string s, Context & context);
+        
+        std::string getStrategy(){ return myStrategy; };
+        
         void setStrategy(std::string s){ myStrategy = s; };
-        PlanningUnit * getNewPlan();
+        
+        PlanningUnit * getNextPlan(Context & cm);
+
+        PlanningUnit * getDefaultPlan(Context & cm);
+
+
+        PlanningUnit* createNewPlan(Context & cm);
 
         std::string myStrategy = "";
+
         PlanningUnit * currentPlan;
 
-        std::list<PlanningUnit> planningList;
+        //Context & myContext;
+
+        std::list<PlanningUnit*> planningList;
+        std::list<PlanningUnit*>::iterator iter;
+
+        std::stack<PlanningUnit*> planningStack;
 		
-	};
-        
+	};       
 
 }

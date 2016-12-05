@@ -32,6 +32,7 @@ class Context
         
         BWAPI::Unit constructionWorker_p = nullptr;
         BWAPI::Unit supplyMaker_p = nullptr;
+        BWAPI::Unit recon_p = nullptr;
 
         BWAPI::Unitset marinesUnion;
         BWAPI::UnitType supplyProviderType;
@@ -72,6 +73,7 @@ class Context
         bool supplyBlocked = false;
 
         //Combat globals
+        bool underAttack = false;
         bool attackingBase = false;
 
         std::string currPlanUnit = "";
@@ -81,6 +83,18 @@ class Context
         int numWorkers = 0;
         int numMarines = 0;
         int nextUnit = 0;
+
+        //Focus???
+
+        BWAPI::Unit unitFocus;
+        BWAPI::Unitset setFocus;
+
+        std::string declarative = "";
+        std::string procedural = "";
+        std::string production = "";
+
+        std::string pyOper = "";
+                
            
 };
 

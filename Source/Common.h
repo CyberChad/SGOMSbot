@@ -10,8 +10,10 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <queue>
 #include <deque>
 #include <list>
+#include <stack>
 #include <set>
 #include <map>
 #include <array>

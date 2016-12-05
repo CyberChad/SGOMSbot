@@ -15,9 +15,10 @@ namespace PlanningUnitTypes
         Attack, 
         Defend, 
         Scout, 
-        Expand, 
-        
-        Default 
+        Expand,                 
+        Wait,
+
+        Default
     };
 }
 
@@ -31,29 +32,59 @@ class PlanningUnit
 
     public:
 	    PlanningUnit();
-        PlanningUnit(const std::string & type );
+        PlanningUnit(PlanningUnitTypes::PlanType type );
 	    ~PlanningUnit();
 
         int numUnitTasks;
-        bool isDone();        
+        
+        bool isFinished();
 
-        UnitTask * nextTask();
+        bool isEmpty();
+
+        bool finished = false;
+
+        bool empty = false;
+
+        UnitTask * getNextTask(Context & cm);
 
         const size_t & type() const;
+
         PlanningUnitTypes::PlanType myType;
 
         std::string getName(){ return myName; };
 	
 
         void initialize(Context & cm);
+        
+        //Miscallenous
+        void watchAndWait(Context & cm);
+
+        //Expand Base        
+        void trainResourceUnits(Context & cm);
+        void createResourceBuildings(Context & cm);
+
+        //Create Army
+        void createBarracks(Context & cm);
+        void trainMarines(Context & cm);
+        
+
+        //Defend Base
+        void defendMyBase(Context & cm);
+
+        //Attack Enemy
+        void moveUnitsToLocation(Context & cm);
+
 
         size_t  _type;
+
+        UnitTask* nextTask = nullptr;
 
         std::string myName;
         //std::vector<UnitTask> UnitTaskVector;
         std::list<UnitTask*> unitTaskList;
+        std::queue<UnitTask*> unitTaskQueue;
         std::list<UnitTask*>::iterator iter;
-        //UnitTaskList myCrazyList;
+        
        
 
 };

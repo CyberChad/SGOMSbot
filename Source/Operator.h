@@ -16,6 +16,8 @@ namespace OperatorTypes
 
         Train,
 
+        None,
+
         Default
     };
 }
@@ -27,7 +29,7 @@ class Operator
         Operator(OperatorTypes::OpCode);
         ~Operator();
         
-        OperatorTypes::OpCode myOp;
+        OperatorTypes::OpCode myOpType;
 
         void setUnit(BWAPI::Unit u);
         void setCommand(BWAPI::UnitCommand c);
@@ -43,12 +45,18 @@ class Operator
 
         void execute();
 
+        //bool done = false;
+
+        std::string myName;
+
         BWAPI::Unit subject;
         BWAPI::UnitType subjectType;
         
         BWAPI::Unit object;
         BWAPI::UnitType objectType;
         
+        BWAPI::TilePosition position;        
+
         BWAPI::Unit theUnit;
         BWAPI::UnitType theUnitType;
         BWAPI::UnitCommand theUnitCommand;

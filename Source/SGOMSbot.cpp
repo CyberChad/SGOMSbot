@@ -51,13 +51,22 @@ void SGOMSbot::onStart()
   
   awarenessModule.initialize(); //internal game state and understanding
   contextModule.initialize(); //internal game state and understanding  
-  strategyModule.initialize("default");
+  strategyModule.initialize("Default", contextModule );
+  
+  
+  Py_Initialize();
 
+  PyObject* myModuleImportString = PyString_FromString((char*)"import ccm");
+  PyObject* myModule = PyImport_Import(myModuleImportString);  
+  //PyObject* myFunction = PyObject_GetAttrString(myModule, (char*)"myabs");
+  //PyObject* args = PyTuple_Pack(1, PyFloat_FromDouble(2.0));
   
+
+  //PyObject* myResult = PyObject_CallObject(myFunction, args)
+  //double result = PyFloat_AsDouble(myResult);
   
-  //Py_Initialize();
   //PyRun_SimpleString("import ccm");
-  //Py_Finalize();
+  Py_Finalize();
    
 
   // Print the map name.
@@ -148,74 +157,63 @@ void SGOMSbot::onFrame()
     contextModule.update();
     drawHUDinfo();
 
-
-
-
-
     /*=============================================*/
     /*==========  SGOMS LOOP  =====================*/
     /*=============================================*/
+    
+ 
+    if ( !awarenessModule.flag ) //RHS: everything's okay
+    {      
 
-    //Choose planning unit based on Strategy/Context
-
-
-    if (planUnit == nullptr)
-    {
-        planUnit = strategyModule.getNewPlan();
-        planUnit->initialize(contextModule);
+        if ( nextTask && !nextTask->isFinished() )
+        {   
+            nextOp = nextTask->getNextOp();            
+            if (nextOp)
+            {
+                contextModule.currGameOp = nextOp->myName;
+                nextOp->execute();
+            }
+        }
+        else if ( planUnit && !planUnit->isFinished() )
+        {   
+            nextTask = planUnit->getNextTask(contextModule);
+            contextModule.currUnitTask = nextTask->myName;
+        }
+        else
+        {            
+            planUnit = strategyModule.getNextPlan(contextModule);                 
+            contextModule.currPlanUnit = planUnit->myName;
+        }        
     }
-    else
-    {
-        Broodwar << "Get next task!!" << std::endl;
-        //nextTask = planUnit->nextTask();
-    }
-
-    if (nextTask != nullptr)
-    {
-        Broodwar << "Starting next task!!" << std::endl;
-    }
-    else //no more tasks, get new planUnit
-    {
-        //planUnit = strategyModule.getNewPlan();
-        //planUnit->initialize(contextModule);
-    }
-        
-    //nextOp = nextTask->nextOp();
-
-    if (nextOp != nullptr)
-    {
-        Broodwar << "Executing Operator!!" << std::endl;
-        //nextOp->execute();
-    }
-    //retrieve next Operator / Method
-    {
-        //Execute operator(s)
-   
-        //Update situation knowledge (from Parallel external monitoring)
-
-
-        //Evaluate situation (determine arousal / emergency)
-
-
-
-    }//end for : Unit Task Loop
-
-//Is everything okay?
+    else //LHS: Possible Problem
     {
         //If not, consider problem solving (depends on risk/arousal)
-
-        //Problem solve?
+        if (!awarenessModule.emergency)
         {
-            //doProblemSolve()
+            //doProblemSolve(), may reduce arousal?
+        }
+        else //EMERGENCY!!!!!
+        {
+            //push a new plan onto the stack
+            planUnit = strategyModule.createNewPlan(contextModule);
+            nextTask = nullptr;
+            nextOp = nullptr;            
         }
     }
+    
 
-    if (awarenessModule.emergency) //if emergency, break
+    // UPDATE SITUATION KNOWLEDGE  
     {
-        Broodwar << "EMERGENCY: placeholder" << std::endl;;
-        //break
+        //Update situation knowledge (from Parallel external monitoring)
+        contextModule.update();
     }
+
+    // EVALUATE SITUATION 
+    {
+        //input from prior problem solving
         
+
+    }
 
 }//Function onFrame()
 
@@ -402,6 +400,11 @@ void SGOMSbot::onUnitComplete(BWAPI::Unit unit)
         }
 
     }//end if my unit
+    else
+    {
+        awarenessModule.emergency = true;
+        awarenessModule.arousal = 10;
+    }
 
 
 }
@@ -472,11 +475,15 @@ void SGOMSbot::drawHUDinfo()
 {
     // Display the game frame rate as text in the upper left area of the screen
     
+    /********************/
+    /****** Debug *******/
+    /********************/
+
     Broodwar->drawTextScreen(10, 00, "Timer: %d", Broodwar->getFrameCount());
 
     Broodwar->drawTextScreen(10, 20, "Supply Blocked: %s", contextModule.isSupplyBlocked() ? "true" : "false");
-    Broodwar->drawTextScreen(10, 50, "Barracks Construction: %s", contextModule.makingBarracks == false ? "false" : "true");
-    Broodwar->drawTextScreen(10, 70, "Supply Construction: %s", contextModule.makingDepot == false ? "false" : "true");
+    Broodwar->drawTextScreen(10, 30, "Barracks Construction: %s", contextModule.makingBarracks == false ? "false" : "true");
+    Broodwar->drawTextScreen(10, 40, "Supply Construction: %s", contextModule.makingDepot == false ? "false" : "true");
 
     /* Update the HUD with debug stats*/
     Broodwar->drawTextScreen(150, 0, "Total Minerals: %d", Broodwar->self()->minerals());
@@ -493,13 +500,31 @@ void SGOMSbot::drawHUDinfo()
     Broodwar->drawTextScreen(300, 0, "FPS: %d", Broodwar->getFPS());
     Broodwar->drawTextScreen(300, 10, "Average FPS: %f", Broodwar->getAverageFPS());
     
-    Broodwar->drawTextScreen(300, 40, "STRATEGY: %s", strategyModule.getStrategy().c_str() );
-    Broodwar->drawTextScreen(300, 50, "PLANUNIT: %s", contextModule.currPlanUnit.c_str());
-    Broodwar->drawTextScreen(300, 60, "UNITTASK: %s", contextModule.currUnitTask.c_str() );
-    Broodwar->drawTextScreen(300, 70, "OPERATOR: %s", contextModule.currGameOp.c_str() );
+    /********************/
+    /****** SGOMS *******/
+    /********************/
 
-    BWAPI::Color sgomsBoxColor(255, 0, 255);
-    Broodwar->drawBoxScreen(290, 30, 500, 90, sgomsBoxColor, false);
+    int sgoms = 350;
+    
+    Broodwar->drawTextScreen(sgoms, 30, "*** SGOMS : Macro ***");
+    Broodwar->drawTextScreen(sgoms, 40, "STRATEGY: %s", strategyModule.getStrategy().c_str());
+    Broodwar->drawTextScreen(sgoms, 50, "PLANUNIT: %s", contextModule.currPlanUnit.c_str());
+    Broodwar->drawTextScreen(sgoms, 60, "UNITTASK: %s", contextModule.currUnitTask.c_str());
+    Broodwar->drawTextScreen(sgoms, 70, "OPERATOR: %s", contextModule.currGameOp.c_str());
+        BWAPI::Color sgomsBoxColor(255, 0, 255);
+        Broodwar->drawBoxScreen(sgoms - 10, 30, sgoms+200, 90, sgomsBoxColor, false);
+
+    /********************/
+    /****** SGOMS *******/
+    /********************/
+    Broodwar->drawTextScreen(sgoms, 95, "*** ACT-R : Micro ***");
+    Broodwar->drawTextScreen(sgoms, 105, "Declarative: %s", contextModule.declarative.c_str());
+    Broodwar->drawTextScreen(sgoms, 115, "Procedural: %s", contextModule.procedural.c_str());
+    Broodwar->drawTextScreen(sgoms, 125, "Production: %s", contextModule.production.c_str());
+    Broodwar->drawTextScreen(sgoms, 135, "PyOper: contextModule.pyOper.c_str()" );
+
+    BWAPI::Color actrBoxColor(150, 150, 150);
+    Broodwar->drawBoxScreen(sgoms - 10, 91, sgoms + 300, 150, actrBoxColor, false);
 
 
     //BWTA draw if finished analyzing the map

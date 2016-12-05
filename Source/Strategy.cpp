@@ -9,10 +9,11 @@ using namespace BWAPI;
 
 bool debug = false;
 
+
 Strategy::Strategy()
 {
     Broodwar << "CREATE: Strategy Module" << std::endl;
-    myStrategy = "Default";
+    myStrategy = "Default";        
 }
 
 
@@ -20,13 +21,36 @@ Strategy::~Strategy()
 {
 }
 
-void Strategy::initialize(std::string s)
+void Strategy::initialize(std::string s, Context & cm)
 {
     myStrategy = s;
-    Broodwar << "STRATEGY: Initialized! Using: " << myStrategy << std::endl;    
+    Broodwar << "STRATEGY: Initialized! Using: " << myStrategy << std::endl;   
+    createNewPlan(cm);
 }
 
-PlanningUnit * Strategy::getNewPlan()
+PlanningUnit* Strategy::getNextPlan(Context & cm)
+{
+    if (currentPlan != nullptr)
+    {
+        if (currentPlan->isFinished() )
+        {
+            planningStack.pop();
+        }
+    }
+
+    if ( !planningStack.empty() )
+    {
+        currentPlan = (PlanningUnit*)planningStack.top();        
+    }
+    else
+    {
+        currentPlan = createNewPlan(cm);
+    }    
+    
+    return currentPlan;    
+}
+
+PlanningUnit * Strategy::createNewPlan(Context & cm)
 {
     //based on context and awareness, choose the most appropriate plan.
 
@@ -36,34 +60,35 @@ PlanningUnit * Strategy::getNewPlan()
     //***************** CHECK CONTEXT *********************
 
     //for now we just go with Default, and build the base....
-
     if (myStrategy == "Default")
     {
-        currentPlan = new PlanningUnit("Default");
+        currentPlan = getDefaultPlan(cm);
     }
     else if (myStrategy == "Rush")
     {
-        currentPlan = new PlanningUnit("Attack");
-
+        //currentPlan = new PlanningUnit("Attack");
     }
     else if (myStrategy == "Tech")
     {
-        currentPlan = new PlanningUnit("Expand");
+        //currentPlan = new PlanningUnit("Expand");
 
     }
     else if (myStrategy == "Turtle")
     {
-        currentPlan = new PlanningUnit("Defend");
-
+        //currentPlan = new PlanningUnit("Defend");
     }
     else // Default
     {
-        currentPlan = new PlanningUnit("Default");
+        //currentPlan = new PlanningUnit("Default");
     }
 
+    currentPlan->initialize( cm );
+
+    planningStack.push(currentPlan);
+    
     //planningList.insert(currentPlan);
     
-    //PlanningUnit pu;
+    return currentPlan;
     
 
 
@@ -76,6 +101,39 @@ PlanningUnit * Strategy::getNewPlan()
     //        Broodwar << "Next Plan: " << tmpname << std::endl;
     //}
 
-    return currentPlan;
+    //return currentPlan;
     
 }//Strategy::getNextPlan()
+
+PlanningUnit * Strategy::getDefaultPlan(Context & cm)
+{
+    //check if under attack
+    
+    if (cm.numMarines > 10)
+    {
+        return new PlanningUnit(PlanningUnitTypes::Attack);
+    }
+    else
+    {
+        return new PlanningUnit(PlanningUnitTypes::Expand);
+    }
+    
+    
+    //check if need repair
+    
+
+    //build base
+
+
+
+
+    //build army
+
+
+
+    
+    //attack enemy
+
+
+    
+}

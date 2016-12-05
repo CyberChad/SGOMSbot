@@ -1,21 +1,8 @@
-﻿Build started 2016-11-25 1:38:33 PM.
+﻿Build started 12/5/2016 2:16:53 AM.
      1>Project "D:\Development\SGOMSbot\SGOMSbot.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../include /IC:\Python27/include /ID:\Development\BWTA/include /ID:\Development\BWAPI/include /ID:\Development\BWAPI/lib /Zi /nologo /W3 /WX- /MP /Od /Oy- /D NOMINMAX /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EXAMPLEAIMODULE_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\Awareness.cpp Source\Buffer.cpp Source\Chunk.cpp Source\Context.cpp Source\Dll.cpp Source\Goal.cpp Source\Module.cpp Source\Operator.cpp Source\PlanningUnit.cpp Source\Productions.cpp Source\SGOMSbot.cpp Source\Strategy.cpp Source\UnitTask.cpp
-         Awareness.cpp
-         Buffer.cpp
-         Chunk.cpp
-         Context.cpp
-         Dll.cpp
-         Goal.cpp
-         Module.cpp
-         Operator.cpp
-         PlanningUnit.cpp
-         Productions.cpp
-         SGOMSbot.cpp
-         Strategy.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../include /IC:\Python27/include /ID:\Development\BWTA/include /ID:\Development\BWAPI/include /ID:\Development\BWAPI/lib /Zi /nologo /W3 /WX- /MP /Od /Oy- /D NOMINMAX /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EXAMPLEAIMODULE_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Source\UnitTask.cpp
          UnitTask.cpp
-     1>Source\UnitTask.cpp(63): warning C4101: 'object' : unreferenced local variable
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Development\SGOMSbot\Debug\SGOMSbot.dll" /INCREMENTAL:NO /NOLOGO C:\Python27\libs\python27.lib D:\Development\BWAPI/lib/BWAPId.lib D:\Development\BWTA/lib/BWTAd.lib "D:\Development\BWTA/lib/libboost_system-vc120-mt-gd-1_56.lib" "D:\Development\BWTA/lib/libboost_thread-vc120-mt-gd-1_56.lib" "D:\Development\BWTA/lib/libCGAL-vc120-mt-gd-4.4.lib" "D:\Development\BWTA/lib/libgmp-10.lib" "D:\Development\BWTA/lib/libmpfr-4.lib" "D:\Development\BWTA/lib/libboost_filesystem-vc120-mt-gd-1_56.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Development\SGOMSbot\Debug\SGOMSbot.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Debug\SGOMSbot.lib" /MACHINE:X86 /SAFESEH /DLL Debug\Awareness.obj
          Debug\Buffer.obj
@@ -57,4 +44,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:07.12
+Time Elapsed 00:00:02.14
